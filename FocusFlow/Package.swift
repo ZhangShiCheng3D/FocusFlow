@@ -11,6 +11,7 @@ let package = Package(
             name: "FocusFlow",
             path: "Sources/FocusFlow",
             exclude: [
+                "FocusFlow.entitlements",
                 "Resources/Info.plist"
             ],
             resources: [

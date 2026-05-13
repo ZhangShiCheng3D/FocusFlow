@@ -187,7 +187,7 @@ final class ODRManager: NSObject, ObservableObject {
 
 // MARK: - URLSessionDataDelegate Conformance
 
-extension ODRManager: URLSessionDataDelegate {}
+extension ODRManager: @preconcurrency URLSessionDataDelegate {}
 
 // MARK: - Cache Management
 

@@ -21,7 +21,7 @@ struct Sound: Identifiable, Codable, Equatable, Hashable {
         category: SoundCategory,
         fileName: String,
         icon: String,
-        isFree: Bool,
+        isFree: Bool = false,
         isDownloaded: Bool = false,
         volume: Float = 0.7
     ) {
@@ -285,7 +285,7 @@ enum IntegrationStatus: Equatable {
     case authorized
     case failed(reason: IntegrationError)
 
-    enum IntegrationError: Equatable {
+    enum IntegrationError: Error, Equatable {
         case userDenied
         case adminConsentRequired
         case networkError
