@@ -8,8 +8,6 @@
     <true/>
     <key>com.apple.security.personal-information.calendars</key>
     <true/>
-    <key>com.apple.developer.family-controls</key>
-    <true/>
     <key>com.apple.developer.team-identifier</key>
     <string>$(DEVELOPMENT_TEAM)</string>
 </dict>

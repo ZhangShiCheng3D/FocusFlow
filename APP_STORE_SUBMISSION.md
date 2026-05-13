@@ -34,8 +34,6 @@ FocusFlow 使用了以下需要额外说明的权限，在 App Store Connect 的
 | `com.apple.security.network.client` | OAuth 登录、音效下载 | ✅ 合理用途 |
 | `NSCalendarsUsageDescription` | 日历写入 | ✅ 已在 Info.plist 声明 |
 
-Family Controls 权限审核提示：苹果对该权限审核较严，需要在 App Review 说明中明确描述"帮助用户在专注时段减少干扰"的核心理念。
-
 ### 5. Shortcuts 快捷指令依赖
 - [ ] 创建两个快捷指令（用户首次启动时需安装）：
   1. `FocusFlow-Enable` — 开启专注模式
@@ -119,16 +117,3 @@ bash scripts/submit_app_store.sh
 |------|----------|
 | 功能不完整 | 确保所有声明的功能在审核版本中可用 |
 | 权限使用不当 | 在 App Review 信息中清晰解释每个权限的用途 |
-| Family Controls 被拒 | 强调专注辅助的核心理念，提供详细的使用场景说明 |
-| 缺少隐私政策 | 提供可访问的隐私政策 URL |
-| 菜单栏 App 无功能提示 | 使用 onboarding 告知用户如何操作 |
-| Shortcuts 依赖无说明 | 在描述中说明快捷指令是可选的插件式功能 |
-
-## 技术注意事项
-
-- **沙盒已启用** (`com.apple.security.app-sandbox = true`) — 符合 App Store 要求
-- **LSUIElement = true** — 纯菜单栏应用，不显示 Dock 图标
-- **最低系统**: macOS 13.0
-- **签名**: Apple Distribution 证书 + App Store 配置文件
-- **Entitlements 已配置**: 见 `FocusFlow/FocusFlow.entitlements`
-- **Info.plist 已清理**: 移除了 iOS-only keys
