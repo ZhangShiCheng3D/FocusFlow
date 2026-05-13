@@ -10,6 +10,9 @@ let package = Package(
         .executableTarget(
             name: "FocusFlow",
             path: "Sources/FocusFlow",
+            exclude: [
+                "Resources/Info.plist"
+            ],
             resources: [
                 .process("Resources")
             ],
