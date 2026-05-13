@@ -31,8 +31,8 @@ jobs:
       - name: Run tests
         run: swift test --package-path FocusFlow
 
-  release-artifact:
-    name: Build release executable
+  app-artifact:
+    name: Package macOS app
     runs-on: macos-15
     needs: build-and-test
     if: github.event_name == 'workflow_dispatch'
@@ -41,12 +41,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build release
-        run: swift build -c release --package-path FocusFlow
+      - name: Package app
+        run: bash scripts/package_app.sh
 
-      - name: Upload release executable
+      - name: Upload app bundle zip
         uses: actions/upload-artifact@v4
         with:
-          name: FocusFlow-release-executable
-          path: FocusFlow/.build/release/FocusFlow
+          name: FocusFlow-macOS-app
+          path: dist/FocusFlow.app.zip
           if-no-files-found: error
