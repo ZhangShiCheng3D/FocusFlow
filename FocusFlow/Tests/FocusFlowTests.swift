@@ -6,7 +6,7 @@ final class FocusFlowTests: XCTestCase {
     // MARK: - Sound Model Tests
 
     func testSoundCatalogCount() {
-        XCTAssertEqual(SoundCatalog.allSounds.count, 21)
+        XCTAssertEqual(SoundCatalog.allSounds.count, 24)
     }
 
     func testFreeTierSounds() {
