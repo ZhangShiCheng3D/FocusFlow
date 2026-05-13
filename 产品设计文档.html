@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FocusFlow — 产品设计文档 v4.0</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --text: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --accent: #4f6ef7;
+    --accent-dark: #3b54d4;
+    --accent-light: #eef1ff;
+    --border: #e2e8f0;
+    --tag-bg: #f1f5f9;
+    --tag-text: #475569;
+    --success: #16a34a;
+    --warn: #d97706;
+    --danger: #dc2626;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    padding: 40px 20px;
+  }
+
+  .container { max-width: 1000px; margin: 0 auto; }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 60px 40px 50px;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #4f6ef7 100%);
+    border-radius: 20px;
+    color: #fff;
+    margin-bottom: 40px;
+  }
+  .hero .icon { font-size: 56px; margin-bottom: 16px; }
+  .hero h1 { font-size: 42px; font-weight: 700; letter-spacing: -1px; margin-bottom: 8px; }
+  .hero .subtitle { font-size: 22px; font-weight: 500; opacity: 0.92; margin-bottom: 4px; }
+  .hero .tagline { font-size: 15px; opacity: 0.7; margin-top: 10px; }
+  .hero .version-badge {
+    display: inline-block; background: rgba(255,255,255,0.15);
+    font-size: 12px; padding: 3px 12px; border-radius: 20px; margin-top: 12px;
+  }
+
+  /* Section */
+  .section { margin-bottom: 42px; }
+  .section-title {
+    font-size: 22px; font-weight: 700;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title .emoji { font-size: 24px; }
+
+  /* Card grid */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .card p { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+
+  /* Callout */
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: var(--accent-light);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+  .callout.warn { border-left-color: var(--warn); background: #fffbeb; }
+  .callout.danger { border-left-color: var(--danger); background: #fef2f2; }
+  .callout.success { border-left-color: var(--success); background: #f0fdf4; }
+  .callout strong { color: var(--text); }
+
+  /* Feature table */
+  .feature-table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .feature-table th, .feature-table td { padding: 14px 20px; text-align: left; font-size: 14px; vertical-align: top; }
+  .feature-table th { background: #f8fafc; font-weight: 600; color: var(--text-secondary); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+  .feature-table td { border-top: 1px solid var(--border); }
+  .feature-table .check { color: var(--success); font-weight: 700; }
+  .feature-table .dash { color: #94a3b8; }
+  .feature-table .partial { color: var(--warn); font-weight: 600; }
+
+  /* Tags */
+  .tag {
+    display: inline-block;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin: 2px 4px 2px 0;
+    font-weight: 500;
+  }
+  .tag.accent { background: var(--accent-light); color: var(--accent); }
+  .tag.success { background: #dcfce7; color: #15803d; }
+  .tag.warn { background: #fffbeb; color: #92400e; }
+  .tag.danger { background: #fef2f2; color: #b91c1c; }
+  .tag.new { background: #ede9fe; color: #7c3aed; }
+
+  /* Architecture */
+  .arch-diagram {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .arch-layer { display: flex; justify-content: center; gap: 14px; margin: 10px 0; flex-wrap: wrap; }
+  .arch-block {
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 12px; font-weight: 600;
+    padding: 10px 16px; border-radius: 8px;
+    border: 1px solid #d0d9ff;
+  }
+  .arch-block.dark { background: #4f6ef7; color: #fff; border: none; }
+  .arch-block.light { background: #f1f5f9; color: var(--text-secondary); border: 1px solid var(--border); }
+  .arch-block.new { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  .arch-block.purple { background: #ede9fe; color: #7c3aed; border: 1px solid #ddd6fe; }
+  .arch-arrow { font-size: 20px; color: #94a3b8; margin: 4px 0; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 30px; }
+  .timeline::before { content: ""; position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .timeline-item { position: relative; margin-bottom: 24px; }
+  .timeline-item::before { content: ""; position: absolute; left: -22px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 0 2px var(--accent); }
+  .timeline-item h4 { font-size: 15px; font-weight: 600; }
+  .timeline-item p { font-size: 13px; color: var(--text-secondary); margin-top: 2px; line-height: 1.7; }
+
+  /* Money */
+  .revenue-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .revenue-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 16px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .revenue-card.featured { border: 2px solid var(--accent); box-shadow: var(--shadow-md); position: relative; }
+  .revenue-card.featured::after { content: "推荐"; position: absolute; top: -10px; right: 16px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 10px; }
+  .revenue-card .price { font-size: 28px; font-weight: 800; color: var(--accent); }
+  .revenue-card .label { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 4px; }
+  .revenue-card .desc { font-size: 12px; color: var(--text-muted); margin-top: 8px; line-height: 1.6; }
+
+  /* Risk matrix */
+  .risk-table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .risk-table th, .risk-table td { padding: 12px 16px; text-align: left; font-size: 13px; }
+  .risk-table th { background: #f8fafc; font-weight: 600; color: var(--text-secondary); font-size: 12px; }
+  .risk-table td { border-top: 1px solid var(--border); }
+  .risk-high { color: var(--danger); font-weight: 700; }
+  .risk-mid { color: var(--warn); font-weight: 700; }
+  .risk-low { color: var(--success); font-weight: 700; }
+
+  /* Compare */
+  .compare-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .compare-box.ours { border: 2px solid var(--accent); }
+  .compare-box h3 { font-size: 16px; margin-bottom: 12px; }
+  .compare-box ul { list-style: none; font-size: 14px; color: var(--text-secondary); }
+  .compare-box ul li { padding: 5px 0; padding-left: 18px; position: relative; }
+  .compare-box ul li::before { content: "•"; position: absolute; left: 4px; color: var(--accent); }
+  .compare-box ul li.bad::before { content: "✗"; color: var(--text-muted); }
+
+  /* Funnel */
+  .funnel { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; padding: 16px 0; }
+  .funnel-step {
+    background: var(--card-bg); border: 2px solid var(--border);
+    border-radius: var(--radius); padding: 16px 20px; text-align: center;
+    min-width: 140px; box-shadow: var(--shadow);
+  }
+  .funnel-step h4 { font-size: 14px; color: var(--text); margin-bottom: 4px; }
+  .funnel-step p { font-size: 12px; color: var(--text-muted); }
+  .funnel-arrow { font-size: 20px; color: var(--accent); font-weight: 700; }
+
+  /* Tier compare */
+  .tier-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .tier-card {
+    border-radius: var(--radius); padding: 28px 24px; box-shadow: var(--shadow);
+  }
+  .tier-card.free { background: #f8fafc; border: 1px solid var(--border); }
+  .tier-card.pro { background: var(--accent-light); border: 2px solid var(--accent); }
+  .tier-card h3 { font-size: 18px; margin-bottom: 12px; }
+  .tier-card ul { list-style: none; font-size: 14px; color: var(--text-secondary); }
+  .tier-card ul li { padding: 5px 0; padding-left: 20px; position: relative; }
+  .tier-card ul li::before { content: "✓"; position: absolute; left: 0; color: var(--success); font-weight: 700; }
+  .tier-card ul li.no::before { content: "—"; color: var(--text-muted); }
+
+  /* Footer */
+  .footer { text-align: center; padding: 40px 0 20px; color: #94a3b8; font-size: 13px; }
+  .changelog { font-size: 12px; color: var(--text-muted); margin-top: 6px; line-height: 1.6; }
+
+  /* Shield icon */
+  .privacy-shield {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 20px;
+    background: #f0fdf4; border: 1px solid #bbf7d0;
+    border-radius: var(--radius); margin: 12px 0;
+  }
+  .privacy-shield .shield-icon { font-size: 32px; }
+  .privacy-shield .shield-text { font-size: 14px; color: #15803d; line-height: 1.6; }
+  .privacy-shield .shield-text strong { color: #166534; }
+
+  /* Model split diagram */
+  .model-split {
+    display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 16px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .revenue-cards { grid-template-columns: repeat(2, 1fr); }
+    .tier-compare, .model-split { grid-template-columns: 1fr; }
+    .hero { padding: 40px 20px 32px; }
+    .hero h1 { font-size: 28px; }
+    .hero .subtitle { font-size: 17px; }
+  }
+  @media (max-width: 480px) {
+    .revenue-cards { grid-template-columns: 1fr; }
+    .card-grid { grid-template-columns: 1fr; }
+    .funnel { flex-direction: column; }
+    .funnel-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ====== Hero ====== -->
+  <div class="hero">
+    <div class="icon">🎧</div>
+    <h1>FocusFlow</h1>
+    <div class="subtitle">数字工位氛围构建器 · 防打扰效率工具</div>
+    <div class="tagline">macOS Menu Bar App — 一键构建深度工作环境</div>
+    <div class="version-badge">v4.0 · 2026 年 5 月</div>
+  </div>
+
+  <!-- ====== 产品定位 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">📖</span> 产品定位</div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <p style="font-size:15px; line-height:1.9;">
+        <strong>FocusFlow</strong> 是一个面向<strong>桌面生产力</strong>的 macOS 菜单栏工具，核心理念是 <strong>Local-First（本地优先）</strong>——所有核心功能离线可用，用户数据不离开设备，第三方集成采用最小化权限原则。产品使命：在用户坐下工作的瞬间，一键构建出沉浸式的数字工位氛围。
+      </p>
+    </div>
+
+    <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="compare-box ours">
+        <h3>✅ FocusFlow 定位</h3>
+        <ul>
+          <li>桌面生产力场景：写代码 / 写作 / 设计 / 学习</li>
+          <li>「工位氛围构建器」— 环境音 + 系统状态一键切换</li>
+          <li>Local-First：离线可用，数据不离机</li>
+          <li>安装包 &lt; 30MB（ODR 按需下载其余音效）</li>
+          <li>桌面端优先，菜单栏常驻，零切换成本</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h3>❌ 明确不做</h3>
+        <ul>
+          <li class="bad">睡眠助眠场景（用户不会开着电脑睡前用）</li>
+          <li class="bad">耳鸣治疗场景（属于医疗健康，需移动端）</li>
+          <li class="bad">冥想 / 瑜伽场景（Headspace / Calm 已占据心智）</li>
+          <li class="bad">移动端 App（资源聚焦 macOS，不分散精力）</li>
+          <li class="bad">云端用户系统（不收集用户数据，不建账号体系）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 目标用户 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🎯</span> 目标用户</div>
+    <div class="card-grid">
+      <div class="card">
+        <h3>👨‍💻 程序员 / 开发者</h3>
+        <p>开放式办公室噪音是头号生产力杀手。需要背景音屏蔽人声干扰，同时自动设置 Slack 状态为「专注中」。深度工作时还需阻断摸鱼站点。对隐私极度敏感，反感上传数据的 App。</p>
+      </div>
+      <div class="card">
+        <h3>🏠 远程工作者</h3>
+        <p>在家办公缺乏「工作仪式感」。通过一键进入「工作模式」——环境音 + 通知屏蔽 + IM 状态同步 + 日历 Busy——划清工作与生活的界限。</p>
+      </div>
+      <div class="card">
+        <h3>🎨 设计师 / 创作者</h3>
+        <p>需要大块不被打扰的创作时间。环境音帮助进入心流状态。全屏创作时仍需看到倒计时状态。习惯纯键盘操作。</p>
+      </div>
+      <div class="card">
+        <h3>📚 学生 / 研究者</h3>
+        <p>期末复习或论文写作需要高强度专注。白噪音提升工作记忆效率。番茄钟帮助拆分学习时段，专注统计提供正向反馈。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 核心功能体系 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">⚙️</span> 核心功能体系</div>
+
+    <table class="feature-table">
+      <thead>
+        <tr><th>模块</th><th>功能点</th><th>详细说明</th></tr>
+      </thead>
+      <tbody>
+        <!-- 环境音引擎 -->
+        <tr><td rowspan="9" style="font-weight:600; background:#f8faff;">🎵<br>环境音引擎</td>
+          <td>一键播放/暂停/切换</td><td>菜单栏弹出面板点击即播，零延迟切换，支持淡入淡出过渡</td></tr>
+        <tr><td>20+ 高品质环境音</td><td>雨声、雷声、海浪、溪流、瀑布、篝火、森林鸟鸣、夜晚虫鸣、咖啡馆、图书馆、键盘打字声、风扇、粉红噪音、白噪音、棕噪音、风铃、钢琴、唱诗班、火车、太空飞船、日式庭院等。</td></tr>
+        <tr><td>On-Demand Resources 按需下载 <span class="tag new">v4.0</span></td><td><strong>初始安装包仅包含 3 个 Free Tier 音效，体积 &lt; 30MB。</strong>其余 17+ 音效通过后台静默按需下载（Cloudflare R2 存储），点击未下载音效时显示环形进度条，边下边播，下载后永久缓存至本地 Application Support 目录。彻底解决安装包体积膨胀问题。</td></tr>
+        <tr><td>混合模式（最多 3 种）</td><td>独立调节每种声音的音量，实时混音输出。Pro 专属。</td></tr>
+        <tr><td>独立音量 + 主音量</td><td>每种声音独立滑块 + 全局主音量控制</td></tr>
+        <tr><td>预设音景 + 场景化推荐</td><td>内置「暴风雨」「咖啡馆工作」「深夜自习室」「图书馆」等预设</td></tr>
+        <tr><td>音景分享 + Web Player</td><td>生成唯一 URL（focusflow.app/s/aB3x9）。未安装用户浏览器试听 1 分钟 + 下载 CTA。完整裂变闭环。</td></tr>
+        <tr><td>不播放时引擎挂起</td><td>无音频输出时 AVAudioEngine 彻底停止，零 CPU 消耗</td></tr>
+        <tr><td>Web Player 承接</td><td>Vercel/Cloudflare Pages 静态托管（$0/月），Web Audio API 混音，1 分钟试听后弹出下载 CTA</td></tr>
+
+        <!-- 深度工作自动化 -->
+        <tr><td rowspan="7" style="font-weight:600; background:#f8faff;">🧘<br>深度工作<br>自动化</td>
+          <td>一键切换专注状态</td><td>点击「开始专注」→ 全套动作自动执行；再次点击 → 全部恢复</td></tr>
+        <tr><td>macOS 专注模式<span class="tag warn">需验证</span></td><td>通过 AppleScript / Shortcuts 桥接触发系统专注模式。Phase 0 验证可行性。</td></tr>
+        <tr><td>应用 & 网站阻断</td><td>FamilyControls (ScreenTime API)。仅 Mac App Store 版可用，DMG 版降级为提醒模式。详见分发策略章节。</td></tr>
+        <tr><td>IM 状态自动同步 + 优雅降级</td><td>Slack / Discord / Teams。授权失败或企业 IT 拦截时<strong>静默跳过不弹窗</strong>。Teams 标注为 Beta。详见企业集成策略章节。</td></tr>
+        <tr><td>系统日历联动</td><td>专注时段写入 Busy 事件，结束自动移除</td></tr>
+        <tr><td>番茄钟倒计时</td><td>25/45/60 分钟 + 自定义，Free Tier 无时长限制</td></tr>
+        <tr><td>专注统计看板</td><td>SwiftData 本地存储 + 私人 iCloud 同步，热力图 + 趋势</td></tr>
+
+        <!-- 效率增强 -->
+        <tr><td rowspan="4" style="font-weight:600; background:#f8faff;">⌨️<br>效率增强<br>& A11Y <span class="tag new">v4.0</span></td>
+          <td>全局快捷键</td><td>默认不绑定避免冲突。支持自定义 + 冲突检测 + 双击菜单栏图标快捷操作</td></tr>
+        <tr><td>全键盘导航 <span class="tag new">v4.0</span></td><td>菜单栏面板弹出后支持纯键盘操作：<strong>Tab 切换焦点，Space 播放/暂停，↑↓ 调节音量，Enter 开始专注，Esc 关闭面板</strong>。契合程序员和重度键盘用户的使用习惯。</td></tr>
+        <tr><td>VoiceOver 无障碍 <span class="tag new">v4.0</span></td><td>所有 UI 组件添加 <strong>accessibilityLabel</strong>，确保 VoiceOver 用户可完整操作。这是 App Store 审核加分项，也是争取 Apple 编辑推荐（App of the Day）的重要条件。</td></tr>
+        <tr><td>开机自启</td><td>可选登录时自动启动，静默常驻菜单栏</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ====== 资源架构：ODR 按需下载 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">📦</span> 资源架构：On-Demand Resources 按需下载 <span class="tag new">v4.0</span></div>
+
+    <div class="callout danger">
+      <strong>核心问题：</strong>20+ 高品质环境音若全部打入 Bundle，即使采用 AAC 256kbps，每个 3-5 分钟的音频文件约 6-10MB，总安装包体积将膨胀至 <strong>200-400MB</strong>。对于一款定位「轻量级菜单栏工具」的 App，这是转化率杀手。
+    </div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h3>📐 ODR 分层策略</h3>
+        <p>
+          <strong>Initial Install（&lt; 30MB）：</strong><br>
+          · App 可执行文件 + UI 资源（~8MB）<br>
+          · 3 个 Free Tier 音效：白噪音、雨声、咖啡馆（~18MB）<br><br>
+          <strong>On-Demand 下载（用户触发时）：</strong><br>
+          · Pro 解锁后其余 17+ 音效按需后台下载<br>
+          · 音效存储于 Cloudflare R2（S3 兼容，免费 10GB/月）<br>
+          · 音频格式：AAC 192kbps，5-8 分钟无缝循环<br>
+          · 下载后永久缓存至 ~/Library/Application Support/FocusFlow/
+        </p>
+      </div>
+      <div class="card">
+        <h3>🔄 用户体验无缝化</h3>
+        <p>
+          <strong>点击未下载音效时：</strong><br>
+          · 显示环形进度条叠加在音效卡片上<br>
+          · 边下边播（前 2 秒数据到达即开始播放）<br>
+          · 下载速度预期：1-2 秒（单个音效 5-8MB，R2 全球 CDN）<br>
+          · 下载完成后写入本地，后续离线可用<br><br>
+          <strong>后台预加载策略：</strong><br>
+          · Pro 用户解锁时后台队列下载所有音效<br>
+          · 用户浏览音效列表时预加载相邻音效<br>
+          · 尊重用户网络环境（仅 WiFi 下自动下载，选项可配置）
+        </p>
+      </div>
+      <div class="card">
+        <h3>☁️ Cloudflare R2 成本估算</h3>
+        <p>
+          <strong>存储（20 个音效，每个 ~6MB）：</strong>~120MB 总计，R2 免费额度 10GB → <strong>$0/月</strong><br><br>
+          <strong>下载流量（假设 1000 DAU，每人下载 10 个音效）：</strong>~60GB/月，R2 免费额度包含出站流量 → <strong>$0/月</strong><br><br>
+          <strong>实际成本：</strong>在达到 ~5000 DAU 之前，R2 完全免费。即使超过免费额度，成本也极低（~$0.015/GB）。<br><br>
+          相比传统 CDN 方案，R2 的零出站流量费是最大优势。
+        </p>
+      </div>
+    </div>
+
+    <div class="arch-diagram" style="margin-top:16px;">
+      <div style="font-weight:700; font-size:14px; margin-bottom:16px;">音效资源生命周期</div>
+      <div class="arch-layer">
+        <div class="arch-block dark">App Bundle<br><small>3 Free 音效 (~18MB)</small></div>
+        <div class="arch-arrow" style="font-size:16px;">→</div>
+        <div class="arch-block new">ODR Manager<br><small>按需下载调度器</small></div>
+        <div class="arch-arrow" style="font-size:16px;">→</div>
+        <div class="arch-block light">Cloudflare R2<br><small>17+ Pro 音效 CDN</small></div>
+      </div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-layer">
+        <div class="arch-block purple">Application Support/<br>FocusFlow/Sounds/<br><small>永久本地缓存</small></div>
+        <div class="arch-arrow" style="font-size:16px;">→</div>
+        <div class="arch-block">AVAudioEngine<br><small>混音播放</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 隐私信任体系 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🛡️</span> 隐私信任体系：Local-First by Design <span class="tag new">v4.0</span></div>
+
+    <div class="callout danger">
+      <strong>核心问题：</strong>FocusFlow 申请的权限极其敏感——控制系统焦点、读取日历、接管第三方 IM (OAuth)、监控并阻断应用 (FamilyControls)。对于极其注重隐私的 macOS 目标用户（尤其是开发者），这份权限清单会引发强烈的卸载冲动。必须将隐私透明化作为产品的核心信任资产来构建。
+    </div>
+
+    <div class="privacy-shield">
+      <div class="shield-icon">🛡️</div>
+      <div class="shield-text">
+        <strong>Local-First 承诺（Onboarding 首屏展示）：</strong><br>
+        · 所有专注数据仅存储在您的设备和私人 iCloud 中<br>
+        · 无后端数据库，无用户账号体系，无行为追踪<br>
+        · OAuth Token 仅通过临时中转服务握手，不长期存储<br>
+        · 环境音全部本地处理，麦克风永不激活
+      </div>
+    </div>
+
+    <div class="card-grid" style="margin-top:16px;">
+      <div class="card">
+        <h3>📋 Onboarding 信任锚点</h3>
+        <p>
+          在 Onboarding 的第一屏（欢迎页之后），插入一个醒目的<strong>「隐私承诺」页面</strong>：<br><br>
+          · 盾牌图标 + 大字「您的数据，留在您的设备上」<br>
+          · 4 条 Local-First 承诺（见上方绿色盾牌区）<br>
+          · 底部「了解更多」链接到官网隐私说明页<br>
+          · 不强制用户停留，可一键跳过进入 App
+        </p>
+      </div>
+      <div class="card">
+        <h3>🔐 各权限逐一释疑</h3>
+        <p>
+          在系统权限弹窗出现前（或设置页中），为每个敏感权限提供<strong>一行解释文字</strong>：<br><br>
+          <strong>专注模式：</strong>「仅用于开关系统专注模式，不读取通知内容」<br>
+          <strong>日历：</strong>「仅写入 Busy 时段，不读取您的日程详情」<br>
+          <strong>ScreenTime：</strong>「仅屏蔽您指定的应用，不上报使用数据」<br>
+          <strong>Slack/Teams：</strong>「仅修改您的在线状态，不读取消息」
+        </p>
+      </div>
+      <div class="card">
+        <h3>🌐 OAuth Proxy 透明化</h3>
+        <p>
+          在 App 内设置页提供<strong>「连接详情」</strong>面板：<br><br>
+          · 说明 Cloudflare Workers 仅做 OAuth 握手时的单次 Secret 注入<br>
+          · Token 存储在本地 Keychain，Worker 不保存<br>
+          · 提供 Workers 源代码链接（开源），用户可自行部署<br>
+          · 「断开连接」按钮一键清除所有第三方 Token
+        </p>
+      </div>
+      <div class="card">
+        <h3>🏆 App Store 隐私标签优势</h3>
+        <p>
+          基于 Local-First 架构，FocusFlow 在 App Store 的隐私营养标签可以做到<strong>极简</strong>：<br><br>
+          · 「数据未与开发者共享」——无后端收集<br>
+          · 「数据未用于追踪」——无分析 SDK<br>
+          · 仅「诊断数据」可选收集（Crashlytics opt-in）<br><br>
+          这与 Noisli（Web 端依赖 Cookie 追踪）形成鲜明对比，是重要的竞争差异点。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== Free vs Pro ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🆓➡️💎</span> Free vs Pro 分层策略</div>
+
+    <div class="callout success">
+      <strong>设计哲学：</strong>Free Tier 不限制使用时长，让用户完整体验「25 分钟番茄钟 + 环境音」的核心爽感。通过限制<strong>丰富度</strong>（音效数量、混合能力）和<strong>高级自动化</strong>（IM 同步、应用阻断、日历联动）构建付费墙。
+    </div>
+
+    <div class="tier-compare">
+      <div class="tier-card free">
+        <h3>🆓 Free Tier</h3>
+        <ul>
+          <li>3 种基础环境音（白噪音 / 雨声 / 咖啡馆）</li>
+          <li class="no">单音播放（不支持混合）</li>
+          <li>番茄钟：25/45/60 分钟，<strong>无时长限制</strong></li>
+          <li>定时关闭：15/30/60 分钟</li>
+          <li>基础专注模式（手动开启系统专注）</li>
+          <li class="no">无 IM 状态同步</li>
+          <li class="no">无应用/网站阻断</li>
+          <li class="no">无日历联动</li>
+          <li class="no">无专注统计看板</li>
+          <li class="no">无音景分享</li>
+          <li>基础倒计时 + 键盘导航</li>
+        </ul>
+      </div>
+      <div class="tier-card pro">
+        <h3>💎 Pro 买断 $14.99</h3>
+        <ul>
+          <li>20+ 全部高品质环境音</li>
+          <li>混合模式（最多 3 种 + 独立音量）</li>
+          <li>全部番茄钟时长 + 自定义</li>
+          <li>无限定时关闭</li>
+          <li>macOS 专注模式自动切换</li>
+          <li>Slack / Discord / Teams 状态同步（含首年 API 维护服务）</li>
+          <li>应用 & 网站强制阻断</li>
+          <li>系统日历 Busy 自动写入</li>
+          <li>专注统计看板（热力图 + 趋势）</li>
+          <li>音景分享 + Web Player 预览</li>
+          <li>全部倒计时显示模式</li>
+          <li>核心本地功能终身更新</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== UX 设计要点 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🎨</span> UX 设计要点</div>
+
+    <div class="card-grid">
+      <div class="card">
+        <h3>🔲 刘海屏 (Notch) 适配</h3>
+        <p>四种倒计时显示模式：</p>
+        <p style="margin-top:8px;">
+          <span class="tag accent">HH:MM</span> 完整时间<br>
+          <span class="tag accent">25m</span> 仅剩分钟数<br>
+          <span class="tag accent">◔</span> 饼图动态填满<br>
+          <span class="tag accent">悬浮窗</span> 独立 Floating Widget
+        </p>
+      </div>
+      <div class="card">
+        <h3>📌 Pin/分离交互（替代拖拽撕下）<span class="tag new">v4.0 调整</span></h3>
+        <p>物理拖拽撕下（类似 Safari 拖出标签页动画）开发成本极高，且容易引发焦点丢失和 Z-Index 冲突。<strong>改为按钮式分离：</strong></p>
+        <p style="margin-top:8px;">
+          面板右上角提供 <strong>📌 Pin 图标按钮</strong>：<br>
+          · 点击 → NSPopover 关闭，原地生成无边框 NSPanel 悬浮窗<br>
+          · 再次点击悬浮窗的 Pin 按钮 → 恢复为菜单栏模式<br>
+          · 支持 Always on Top + 跨桌面空间<br>
+          · 完美覆盖全屏 App + 多显示器场景<br>
+          · 实现成本远低于拖拽动画，交互更明确
+        </p>
+      </div>
+      <div class="card">
+        <h3>⌨️ 全键盘导航 <span class="tag new">v4.0</span></h3>
+        <p>目标用户是程序员和键盘重度用户，面板弹出后必须支持纯键盘操作：</p>
+        <p style="margin-top:8px;">
+          <span class="tag">Tab / Shift+Tab</span> 在音效卡片、音量滑块、时长选择、开始按钮间切换焦点<br>
+          <span class="tag">Space</span> 播放/暂停当前选中的音效<br>
+          <span class="tag">↑ ↓</span> 调节当前焦点音量滑块<br>
+          <span class="tag">← →</span> 切换番茄钟时长预设<br>
+          <span class="tag">Enter</span> 开始专注<br>
+          <span class="tag">Esc</span> 关闭面板 / 退出专注
+        </p>
+      </div>
+      <div class="card">
+        <h3>♿ VoiceOver 无障碍 <span class="tag new">v4.0</span></h3>
+        <p>所有 UI 组件添加 accessibilityLabel，确保 VoiceOver 可用：</p>
+        <p style="margin-top:8px;">
+          · 音效卡片：「雨声，双击播放，当前音量 70%」<br>
+          · 开始按钮：「开始 25 分钟专注，混合 2 种音效」<br>
+          · 倒计时：「剩余 18 分 32 秒」<br>
+          · 菜单栏图标：「FocusFlow，未播放」/「正在播放雨声，剩余 15 分钟」<br><br>
+          <strong>对 App Store 审核和 Apple 编辑推荐至关重要。</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 用户旅程 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🗺️</span> 用户核心旅程</div>
+    <div class="card">
+      <div class="timeline">
+        <div class="timeline-item">
+          <h4>1. 坐下，准备开工</h4>
+          <p>双击菜单栏图标（或用自定义快捷键）→ 面板弹出。全屏用户可右键图标直接「开始上次专注」。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>2. 键盘快速配置（或鼠标点选）</h4>
+          <p>Tab 切换到时长（←→ 调整），Tab 到音效（Space 试听，↑↓ 调音量），Enter 开始专注。全程无需鼠标。或鼠标点击音效卡片 + 拖拽音量滑块。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>3. 系统自动完成全套动作</h4>
+          <p>
+            ✅ 环境音淡入播放<br>
+            ✅ macOS 专注模式开启（若已授权）<br>
+            ✅ IM 状态同步（若已授权；企业拦截则静默跳过）<br>
+            ✅ 应用阻断激活（App Store 版且已授权）<br>
+            ✅ 日历写入 Busy（若已授权）<br>
+            ✅ 倒计时出现在菜单栏（全屏用户可 Pin 出悬浮窗）
+          </p>
+        </div>
+        <div class="timeline-item">
+          <h4>4. 深度工作中</h4>
+          <p>倒计时实时更新。随时可用快捷键暂停/切换音效。全屏 App 下悬浮窗保持可见。若某服务未授权，对应步骤静默跳过，无任何弹窗。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>5. 计时结束（或 Esc 手动退出）</h4>
+          <p>
+            ✅ 环境音淡出停止<br>
+            ✅ 所有系统状态恢复<br>
+            ✅ 通知：「本轮专注 45 分钟 · 今日累计 2.5h」<br>
+            ✅ 数据计入统计看板（本地 + 私人 iCloud）
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 技术方案 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🛠</span> 技术方案</div>
+
+    <div class="arch-diagram">
+      <div style="font-weight:700; font-size:15px; margin-bottom:20px;">系统架构总览 v4.0</div>
+      <div class="arch-layer">
+        <div class="arch-block dark">NSStatusItem<br><small>菜单栏</small></div>
+        <div class="arch-block dark">NSPopover<br><small>弹出面板</small></div>
+        <div class="arch-block dark">FloatingWidget<br><small>悬浮倒计时</small></div>
+        <div class="arch-block purple">NSPanel Pin Window<br><small>分离式控制台</small></div>
+      </div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-layer">
+        <div class="arch-block">FocusStateMachine<br><small>专注状态机</small></div>
+        <div class="arch-block">AudioEngine<br><small>AVAudioEngine</small></div>
+        <div class="arch-block">TimerEngine<br><small>番茄钟</small></div>
+        <div class="arch-block">IntegrationHub<br><small>OAuth + 降级</small></div>
+        <div class="arch-block new">AppBlocker<br><small>FamilyControls</small></div>
+        <div class="arch-block purple">ODRManager<br><small>按需下载</small></div>
+      </div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-layer">
+        <div class="arch-block light">AppleScript Bridge<br><small>专注模式</small></div>
+        <div class="arch-block light">AVFoundation</div>
+        <div class="arch-block light">FamilyControls<br><small>(App Store)</small></div>
+        <div class="arch-block light">CF Workers<br><small>OAuth 代理</small></div>
+        <div class="arch-block light">EventKit<br><small>日历</small></div>
+        <div class="arch-block light">Cloudflare R2<br><small>音效 CDN</small></div>
+      </div>
+      <div class="arch-arrow">▼</div>
+      <div class="arch-layer">
+        <div class="arch-block light">StoreKit 2</div>
+        <div class="arch-block light">Sparkle 2</div>
+        <div class="arch-block light">SwiftData + iCloud</div>
+        <div class="arch-block light">Vercel/CF Pages<br><small>Web Player $0</small></div>
+        <div class="arch-block light">Keychain<br><small>Token 存储</small></div>
+      </div>
+    </div>
+
+    <div class="card-grid" style="margin-top:20px;">
+      <div class="card">
+        <h3>语言 & 框架</h3>
+        <p>SwiftUI（macOS 14+ 目标，macOS 13 兼容），纯原生。代码量控制在 10000-15000 行（ODR 和 A11Y 增加复杂度）。</p>
+      </div>
+      <div class="card">
+        <h3>菜单栏 & UI</h3>
+        <p>NSStatusItem + NSPopover（主面板）+ FloatingWidget（悬浮倒计时）+ NSPanel（Pin 分离控制台，无标题栏、圆角、可置顶）。无 Dock 图标。</p>
+      </div>
+      <div class="card">
+        <h3>音频引擎</h3>
+        <p>AVAudioEngine 多轨混音。不播放时完全挂起。功耗红线：静默 CPU &lt; 0.1%, 播放 CPU &lt; 2%。ODR 音效与 Bundle 音效对播放器透明。</p>
+      </div>
+      <div class="card">
+        <h3>ODR 资源管理 <span class="tag new">v4.0</span></h3>
+        <p>自建 ODR 系统：URLSession 后台下载 + 本地文件缓存 + 下载状态机。音效元数据 plist 描述所有音效的 R2 URL 和版本号。首次播放流式边下边播。</p>
+      </div>
+      <div class="card">
+        <h3>Cloudflare R2 存储</h3>
+        <p>S3 兼容 API。音效文件按 sound_id/version.aac 存储。支持 If-Modified-Since 增量更新。免费额度 10GB 存储 + 零出站流量费。</p>
+      </div>
+      <div class="card">
+        <h3>隐私架构</h3>
+        <p>无后端数据库。无用户系统。无分析 SDK（Crashlytics opt-in）。OAuth Token 存 Keychain。专注数据存 SwiftData + 私人 iCloud（NSUbiquitousKeyValueStore）。</p>
+      </div>
+      <div class="card">
+        <h3>A11Y 可访问性 <span class="tag new">v4.0</span></h3>
+        <p>所有交互元素添加 .accessibilityLabel / .accessibilityHint / .accessibilityValue。键盘焦点链通过 .focusable + .onKeyPress 实现。支持 Full Keyboard Access 导航。</p>
+      </div>
+      <div class="card">
+        <h3>应用阻断</h3>
+        <p>FamilyControls（App Store 版）。DMG 版降级为 NSWorkspace 通知监听 + 提醒弹窗。Phase 0 提交 TestFlight 验证 App Review 接受度。</p>
+      </div>
+      <div class="card">
+        <h3>OAuth + IM 集成</h3>
+        <p>Cloudflare Workers 代理。Slack PKCE + Discord Bot Token + Teams Graph API。三层降级策略。Token 存 Keychain。Workers 源码开源可选自部署。</p>
+      </div>
+      <div class="card">
+        <h3>分发 & 更新</h3>
+        <p>Mac App Store（主渠道，含 FamilyControls）+ DMG（辅助，提醒型降级）。Sparkle 2（DMG）。双版本功能差异在官网清晰说明。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 商业模型 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">💰</span> 商业模型：核心买断 + 可选 API 维护费 <span class="tag new">v4.0</span></div>
+
+    <div class="callout danger">
+      <strong>v3.0 遗留问题：</strong>$14.99 终身买断承诺「终身更新」，但 FocusFlow 并非纯本地软件——IM 状态同步依赖 Slack/Teams/Discord 的第三方 API，这些 API 会持续变（OAuth 策略更新、API 弃用、Token 格式变更）。随着新增用户减少，老用户的 API 维护成本将成为死穴。必须将商业模型拆分为「纯本地核心」和「第三方服务」两部分。
+    </div>
+
+    <div class="model-split">
+      <div class="card" style="border-left: 4px solid var(--success);">
+        <h3>🏠 核心本地功能 — $14.99 终身买断</h3>
+        <p style="font-size:14px; color:var(--text-secondary);">
+          <strong>购买后永久可用，含终身 Bug 修复和安全更新：</strong><br><br>
+          · 全部 20+ 环境音（ODR 下载后离线可用）<br>
+          · 混合播放引擎<br>
+          · 番茄钟引擎（全部时长）<br>
+          · macOS 专注模式辅助切换<br>
+          · 应用 & 网站阻断（App Store 版）<br>
+          · 系统日历 Busy 写入<br>
+          · 专注统计看板（本地存储）<br>
+          · 音景分享 + Web Player<br>
+          · 全部 UI 模式（含 Pin 悬浮窗）<br>
+          · 全键盘导航 + VoiceOver
+        </p>
+      </div>
+      <div class="card" style="border-left: 4px solid var(--warn);">
+        <h3>🔌 第三方集成维护 — $4.99/年（可选续费）</h3>
+        <p style="font-size:14px; color:var(--text-secondary);">
+          <strong>首年包含在 Pro 买断中，次年起可选续费：</strong><br><br>
+          · Slack 状态自动同步<br>
+          · Discord 状态自动同步<br>
+          · Microsoft Teams 状态同步（Beta）<br>
+          · Cloudflare Workers OAuth Proxy 维护<br>
+          · 适配第三方 API 变更（Slack/Teams/Discord 接口升级）<br><br>
+          <strong>不续费的影响：</strong>核心本地功能不受任何影响，仅 IM 状态同步功能暂停。用户随时可续费恢复。
+        </p>
+      </div>
+    </div>
+
+    <div class="revenue-cards" style="margin-top:20px;">
+      <div class="revenue-card">
+        <div class="price">免费</div>
+        <div class="label">Free Tier</div>
+        <div class="desc">
+          3 种基础音效<br>
+          单音播放<br>
+          完整番茄钟（无限时长）<br>
+          定时关闭<br>
+          基础键盘导航
+        </div>
+      </div>
+      <div class="revenue-card featured">
+        <div class="price">$14.99</div>
+        <div class="label">Pro 终身买断</div>
+        <div class="desc">
+          核心本地功能终身<br>
+          + 首年 IM 同步服务<br>
+          + 后续 Bug 修复 & 安全更新<br>
+          锚点价 $19.99→$14.99
+        </div>
+      </div>
+      <div class="revenue-card">
+        <div class="price">$4.99/年</div>
+        <div class="label">IM 同步续费（可选）</div>
+        <div class="desc">
+          次年起可选<br>
+          覆盖 Slack/Teams/Discord<br>
+          API 适配维护<br>
+          不续费仅暂停同步<br>
+          核心功能不受影响
+        </div>
+      </div>
+      <div class="revenue-card">
+        <div class="price">$59</div>
+        <div class="label">Team 5 设备</div>
+        <div class="desc">
+          5 台设备授权<br>
+          面向小团队/创业公司<br>
+          含首年 IM 同步<br>
+          团队管理面板
+        </div>
+      </div>
+    </div>
+
+    <div class="card-grid" style="margin-top:20px;">
+      <div class="card">
+        <h3>商业模型优势分析</h3>
+        <p>
+          <strong>抗风险：</strong>核心收入来自买断，不受 API 变动影响。<br>
+          <strong>可持续：</strong>$4.99/年维护费覆盖 Worker 运行成本和持续适配工作量。<br>
+          <strong>用户友好：</strong>不续费 ≠ 功能报废，核心功能永久可用。类比 Sketch 模式。<br>
+          <strong>透明：</strong>明确告知用户哪些功能依赖外部服务，建立长期信任。
+        </p>
+      </div>
+      <div class="card">
+        <h3>定价沟通策略</h3>
+        <p>
+          <strong>Pro 买断页措辞：</strong><br>
+          「$14.99 购买核心功能终身使用权 + 首年 IM 同步服务」<br><br>
+          <strong>续费提醒（次年起）：</strong><br>
+          「您的 IM 同步服务即将到期。核心功能不受影响。续费 $4.99/年以保持 Slack/Teams 状态同步。」<br><br>
+          <strong>绝不：</strong>使用「订阅」一词（触发用户反感）。使用「API 维护服务」或「持续集成支持」。
+        </p>
+      </div>
+      <div class="card">
+        <h3>音效包内购（继续暂缓）</h3>
+        <p>
+          <span class="tag warn">Phase 5+ 评估</span> 优先验证 Pro 核心转化率。若 Pro 转化率 &gt; 5% 且 IM 续费率 &gt; 60%，再评估内购方案。初期用免费节日主题音效包测试用户对增量音效的需求。
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 分发策略 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">📦</span> 分发策略：App Store vs DMG</div>
+
+    <table class="feature-table" style="margin-bottom:20px;">
+      <thead>
+        <tr><th style="width:25%;">维度</th><th style="background:#eef1ff; width:37.5%;">Mac App Store 版（主渠道）</th><th style="width:37.5%;">DMG 独立分发版（辅助）</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>应用阻断</strong></td>
+          <td class="check">✅ FamilyControls 强制阻断</td>
+          <td class="partial">⚠️ 提醒型防打扰（检测摸鱼 → 弹通知）</td>
+        </tr>
+        <tr>
+          <td><strong>付费方式</strong></td>
+          <td>StoreKit 2 内购（Apple 抽成 15-30%）</td>
+          <td>Paddle/LemonSqueezy License Key（费率 ~5%）</td>
+        </tr>
+        <tr>
+          <td><strong>ODR 音效下载</strong></td>
+          <td>Cloudflare R2（自建 ODR）</td>
+          <td>Cloudflare R2（自建 ODR）</td>
+        </tr>
+        <tr>
+          <td><strong>更新机制</strong></td>
+          <td>App Store 自动更新</td>
+          <td>Sparkle 2 框架</td>
+        </tr>
+        <tr>
+          <td><strong>A11Y 审核加分</strong></td>
+          <td class="check">✅ VoiceOver 支持影响编辑推荐</td>
+          <td>—（不经过审核）</td>
+        </tr>
+        <tr>
+          <td><strong>安装包体积</strong></td>
+          <td>&lt; 30MB（仅 3 音效）</td>
+          <td>&lt; 30MB（仅 3 音效）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ====== 企业集成策略 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🏢</span> 企业集成策略</div>
+    <div class="card-grid">
+      <div class="card">
+        <h3>🔒 Teams Admin Consent 问题</h3>
+        <p>大型企业 IT 部门禁用员工向第三方应用授权 Graph API。这是组织策略问题，非技术问题。</p>
+      </div>
+      <div class="card">
+        <h3>📋 三层降级策略</h3>
+        <p><strong>L1</strong> 授权成功 → 正常同步。<br><strong>L2</strong> 用户拒绝 → 静默跳过。<br><strong>L3</strong> 企业拦截 → 静默跳过，不弹错误。设置页显示状态 + 提供联系 IT 的模板邮件。</p>
+      </div>
+      <div class="card">
+        <h3>🎯 市场定位</h3>
+        <p><strong>Slack + Discord：</strong>主推，权限宽松。<br><strong>Teams：</strong>标注 Beta/实验性。面向中小企业。<br><strong>团队许可：</strong>面向 5-20 人小团队和创业公司。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 技术风险 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">⚠️</span> 技术风险与可行性验证</div>
+
+    <div class="callout danger">
+      <strong>核心原则：</strong>Phase 0 必须对所有高风险技术点进行 Demo 级验证。如果某项不可行，应在设计阶段调整方案。
+    </div>
+
+    <table class="risk-table">
+      <thead>
+        <tr><th style="width:3%;">#</th><th>风险项</th><th style="width:8%;">风险等级</th><th>问题描述</th><th>验证方案</th><th>降级/备选方案</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>R1</td>
+          <td><strong>macOS 专注模式自动开关</strong></td>
+          <td><span class="risk-high">🔴 高</span></td>
+          <td>无公开 API 供第三方静默开关系统专注模式。</td>
+          <td>Demo 测试 AppleScript / Shortcuts / DistributedNotification 三条路径。</td>
+          <td>改为引导用户手动开启。产品宣传调整为「辅助引导」。</td>
+        </tr>
+        <tr>
+          <td>R2</td>
+          <td><strong>FamilyControls + App Review</strong></td>
+          <td><span class="risk-high">🔴 高</span></td>
+          <td>ScreenTime API 定位为家长控制。苹果可能拒绝「生产力」用途。DMG 版无法获取 Entitlement。</td>
+          <td>① Demo 测试动态屏蔽 ② 提交 TestFlight 占位包审核 ③ 测试 DMG 版能否获取 Entitlement。</td>
+          <td>重新定位为「数字健康」。DMG 版仅提醒。详见分发策略章节预案 A/B/C。</td>
+        </tr>
+        <tr>
+          <td>R3</td>
+          <td><strong>OAuth Client Secret 安全</strong></td>
+          <td><span class="risk-high">🔴 高</span></td>
+          <td>纯客户端无法安全存储 Secret。</td>
+          <td>搭建 CF Worker OAuth Proxy，测试延迟。Slack 同步测试 PKCE。</td>
+          <td>Slack 用 PKCE。Teams 无 PKCE 必须用 Worker。Worker 源码开源可自部署。</td>
+        </tr>
+        <tr>
+          <td>R4</td>
+          <td><strong>AVAudioEngine 能耗 + 流式播放</strong></td>
+          <td><span class="risk-mid">🟡 中</span></td>
+          <td>常驻后台 + 流式边下边播增加复杂度。</td>
+          <td>测试引擎挂起功耗 + ODR 边下边播的缓冲延迟。</td>
+          <td>功耗红线：静默 CPU &lt; 0.1%。边下边播缓冲目标 &lt; 2 秒。</td>
+        </tr>
+        <tr>
+          <td>R5</td>
+          <td><strong>Notch + Pin 悬浮窗 Z-Index</strong></td>
+          <td><span class="risk-low">🟢 低</span></td>
+          <td>悬浮窗层级管理（全屏 App 之上、其他悬浮窗之下）。</td>
+          <td>测试 NSPanel 的 level 属性在不同场景下的行为。</td>
+          <td>NSFloatingWindowLevel 可满足大部分场景。</td>
+        </tr>
+        <tr>
+          <td>R6</td>
+          <td><strong>TestFlight 审核：FamilyControls 用途</strong></td>
+          <td><span class="risk-high">🔴 高</span></td>
+          <td>苹果可能拒绝非家长控制场景的 ScreenTime API 使用。</td>
+          <td>提交最小化 TestFlight 包，描述为「数字健康/屏幕时间管理」角度。</td>
+          <td>若被拒：① 调整为「数字健康」措辞 ② 申诉 ③ 放弃 FamilyControls。</td>
+        </tr>
+        <tr>
+          <td>R7</td>
+          <td><strong>权限申请过多导致用户拒绝安装 <span class="tag new">v4.0</span></strong></td>
+          <td><span class="risk-mid">🟡 中</span></td>
+          <td>专注模式 + 日历 + ScreenTime + OAuth 的权限清单可能吓退隐私敏感用户。</td>
+          <td>Onboarding 隐私承诺页 + 权限逐一释疑文字 + 所有权限可选跳过。</td>
+          <td>若转化率受权限影响明显：将敏感权限（ScreenTime/日历）移到 Pro 解锁后触发。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn" style="margin-top:16px;">
+      <strong>Phase 0 Go/No-Go 标准：</strong>R1、R2、R3、R6 必须在此阶段得到明确结论。R7 通过 Onboarding 设计缓解，不做硬性阻断条件。
+    </div>
+  </div>
+
+  <!-- ====== 竞争分析 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🏆</span> 竞争分析</div>
+
+    <table class="feature-table">
+      <thead>
+        <tr>
+          <th>特性</th>
+          <th style="background:#eef1ff;">FocusFlow</th>
+          <th>Noisli</th>
+          <th>Monk Mode</th>
+          <th>SlapMac</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>形态</td><td style="font-weight:600;color:var(--accent);">菜单栏 App</td><td>Web / iOS</td><td>菜单栏 App</td><td>菜单栏 App</td></tr>
+        <tr><td>安装体积</td><td style="font-weight:600;color:var(--accent);">&lt; 30MB (ODR)</td><td>N/A (Web)</td><td>~15MB</td><td>~20MB</td></tr>
+        <tr><td>环境音</td><td class="check">✅ 20+ 音效</td><td class="check">✅ 28 音效</td><td class="dash">—</td><td class="check">✅ 5 音效</td></tr>
+        <tr><td>混合播放</td><td class="check">✅ 3 种</td><td class="check">✅ 多轨</td><td class="dash">—</td><td class="dash">—</td></tr>
+        <tr><td>离线可用</td><td class="check">✅</td><td class="dash">❌ 需联网</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>Local-First 隐私</td><td class="check">✅ 无后端/无追踪</td><td class="dash">❌ Cookie 追踪</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>专注模式</td><td class="check">✅ 自动切换</td><td class="dash">—</td><td class="check">✅</td><td class="dash">—</td></tr>
+        <tr><td>IM 状态同步</td><td class="check">✅ 3 平台</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+        <tr><td>应用阻断</td><td class="check">✅ FamilyControls</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+        <tr><td>音景分享 + Web</td><td class="check">✅ URL + Player</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+        <tr><td>全屏/多屏适配</td><td class="check">✅ Pin 悬浮窗</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+        <tr><td>键盘导航</td><td class="check">✅ 全键盘</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+        <tr><td>VoiceOver 无障碍</td><td class="check">✅</td><td class="dash">—</td><td class="dash">—</td><td class="dash">—</td></tr>
+        <tr><td>定价</td><td style="font-weight:600;color:var(--accent);">$14.99 终身 + $4.99/年(可选)</td><td>$10/月 ($120/年)</td><td>$15 终身</td><td>$7 终身</td></tr>
+      </tbody>
+    </table>
+
+    <div class="card" style="margin-top:20px;">
+      <h3 style="margin-bottom:10px;">核心竞争壁垒</h3>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <span class="tag accent">环境音 + 专注自动化 = 市场唯一整合方案</span>
+        <span class="tag accent">ODR 架构 — 30MB 安装包，200MB 体验</span>
+        <span class="tag accent">Local-First 隐私 — 无后端/无追踪</span>
+        <span class="tag accent">应用阻断 — 防被动通知也防主动摸鱼</span>
+        <span class="tag accent">IM 状态同步 — 3 平台覆盖</span>
+        <span class="tag accent">音景分享 + Web Player — 增长引擎</span>
+        <span class="tag accent">全键盘导航 + VoiceOver — A11Y 标杆</span>
+        <span class="tag accent">$14.99 买断 vs Noisli $120/年</span>
+        <span class="tag accent">核心买断 + 可选 API 维护 — 可持续</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 开发路线图 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🗓️</span> 开发路线图</div>
+
+    <div class="card">
+      <div class="timeline">
+        <div class="timeline-item">
+          <h4>Phase 0 — 技术 + 审核探路 <span class="tag danger">最高优先级</span></h4>
+          <p>
+            ① 验证 macOS 专注模式开关路径<br>
+            ② FamilyControls 动态阻断 Demo + <strong>提交 TestFlight 占位包</strong><br>
+            ③ Cloudflare Workers OAuth Proxy 原型 + 延迟测试<br>
+            ④ AVAudioEngine 能耗基准 + ODR 边下边播原型<br>
+            ⑤ NSPanel Pin 悬浮窗在不同场景的 Z-Index 测试<br>
+            ⑥ Cloudflare R2 音效存储 + CDN 下载速度基准测试<br>
+            <strong>产出：</strong>技术可行性报告 + App Review 反馈 + 风险评估。
+            <br><span class="tag warn">预计 1-2 周</span>
+          </p>
+        </div>
+        <div class="timeline-item">
+          <h4>Phase 1 — MVP：核心播放器 + 菜单栏 + ODR</h4>
+          <p>
+            NSStatusItem + NSPopover 弹出面板、AVAudioEngine 播放器（含挂起 + 边下边播）、3 个 Free 音效（Bundle）+ ODR Manager 框架（R2 集成）、单音播放 + 音量控制、Free Tier 无时长限制、番茄钟基础引擎 + 菜单栏倒计时（HH:MM + 饼图）、Pin 悬浮窗基础实现、全键盘导航（Tab/Space/↑↓/Enter/Esc）、VoiceOver 基础标签。<br>
+            <strong>里程碑：</strong>可用的轻量白噪音播放器（&lt;30MB）+ 番茄钟 + 全键盘操作。
+            <br><span class="tag">预计 4-5 周</span>
+          </p>
+        </div>
+        <div class="timeline-item">
+          <h4>Phase 2 — 专注自动化 + 混合播放</h4>
+          <p>
+            混合播放引擎（3 轨 + 独立音量 + 淡入淡出）、macOS 专注模式切换、FamilyControls 阻断集成（App Store 版）+ DMG 提醒型降级、日历 Busy 写入、预设音景组合、IM 集成授权引导 + 三层降级、Onboarding 隐私承诺页 + 权限释疑文字。<br>
+            <strong>里程碑：</strong>完整的「进入专注」自动化流程 + 优雅降级 + 隐私信任 Onboarding。
+            <br><span class="tag">预计 3-4 周</span>
+          </p>
+        </div>
+        <div class="timeline-item">
+          <h4>Phase 3 — 第三方集成 + 数据 + Web Player</h4>
+          <p>
+            CF Workers OAuth Proxy 部署、Slack/Discord 状态同步（主推）、Teams 状态同步（Beta）、专注统计（SwiftData + 热力图）、全局快捷键（冲突检测 + 自定义）、<strong>Web Player 开发</strong>（Vercel/CF Pages + Web Audio API + 下载 CTA）、音景分享 URL 生成 + URL Scheme 唤起、VoiceOver 完整适配。<br>
+            <strong>里程碑：</strong>IM 同步 + 统计 + 完整增长裂变闭环 + A11Y 达标。
+            <br><span class="tag">预计 4-5 周</span>
+          </p>
+        </div>
+        <div class="timeline-item">
+          <h4>Phase 4 — 付费 + ODR 完善 + 分发</h4>
+          <p>
+            Free/Pro 功能分层、StoreKit 2（App Store）+ Paddle License Key（DMG）、17+ Pro 音效上传 R2 + 后台预加载队列、Mac App Store 正式上架 + 审核、独立网站 + DMG + Sparkle 2、价格锚点（$19.99→$14.99）+ IM 续费说明页、双版本功能差异页面。<br>
+            <strong>里程碑：</strong>双渠道上线 + 付费可用 + ODR 完整。
+            <br><span class="tag">预计 2-3 周</span>
+          </p>
+        </div>
+        <div class="timeline-item">
+          <h4>Phase 5 — 迭代与增长</h4>
+          <p>
+            Product Hunt 发布（配合热门音景分享预热）、用户反馈收集、音效库扩展、主题音效包评估（基于 Pro 转化率 + IM 续费率决策）、性能优化（能耗持续监控）、团队许可证管理后台、Web Player 转化数据分析、App Store 编辑推荐申请（利用 A11Y + 隐私标签优势）。<br>
+            <span class="tag">持续迭代</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 市场验证 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">📊</span> 市场验证数据</div>
+    <div class="card-grid">
+      <div class="card">
+        <h3>Noisli</h3>
+        <p>白噪音赛道标杆。月访问超百万，$10/月订阅（年付 $120）。证明需求巨大且用户愿意付费。但 Web 形态摩擦 + Cookie 追踪是其弱点。</p>
+      </div>
+      <div class="card">
+        <h3>SlapMac</h3>
+        <p>菜单栏音效 App，$7 买断，上线三天 $5000。验证菜单栏音频工具付费意愿。但功能单一，安装包 ~20MB（仅 5 音效）。</p>
+      </div>
+      <div class="card">
+        <h3>Monk Mode</h3>
+        <p>菜单栏专注 App，$15 买断，4200+ 付费用户。验证专注自动化付费市场。无环境音、无第三方集成。</p>
+      </div>
+      <div class="card">
+        <h3>2026 菜单栏赛道趋势</h3>
+        <p>Product Hunt 连续涌现菜单栏工具。共同特征：代码量小、维护成本低、$10-20 买断用户不敏感。A11Y 和隐私标签成为 App Store 推荐的新权重因素。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== 下一步行动 ====== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🚀</span> 下一步行动</div>
+    <div class="card">
+      <div class="timeline">
+        <div class="timeline-item">
+          <h4>立即执行 1：Phase 0 技术探路</h4>
+          <p>Demo 验证专注模式开关 + FamilyControls 阻断 + OAuth Proxy + ODR 边下边播。提交 TestFlight 占位包。搭建 R2 存储桶并测试下载速度。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>立即执行 2：UI 原型 + 隐私 Onboarding 设计</h4>
+          <p>绘制 Notch 场景 + Pin 悬浮窗 + 多显示器 UI 效果图。设计 Onboarding 中的隐私承诺页（盾牌图标 + 4 条承诺）。设计权限释疑文字的措辞和展示位置。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>立即执行 3：Web Player 原型 + A11Y 审计</h4>
+          <p>搭建 focusflow.app + Web Audio API 混音预览。对 UI 组件进行 A11Y 预审计，确保所有元素有 accessibilityLabel。</p>
+        </div>
+        <div class="timeline-item">
+          <h4>Phase 0 结束后：Go / No-Go 决策</h4>
+          <p>基于技术验证 + TestFlight 审核反馈，决定：专注模式方案、阻断功能可行性、是否需要调整核心价值主张。若关键风险可控，启动 Phase 1 开发。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    FocusFlow 产品设计文档 · Version 4.0 · 2026 年 5 月<br>
+    <span class="changelog">
+      v1.0 — 初版：融合白噪音 + 深度工作双概念<br>
+      v2.0 — 聚焦桌面生产力 · 新增应用阻断/Teams/音景分享 · 修正技术方案 · Phase 0 探路<br>
+      v3.0 — 分发策略重构 · Free Tier 去时长限制 · Web Player 裂变闭环 · Tear-off 交互 · 企业降级<br>
+      v4.0 — ODR 按需下载架构(&lt;30MB) · Local-First 隐私信任体系 · 键盘导航+VoiceOver · Pin 替代 Tear-off · 核心买断+可选API维护费 · R7 权限风险
+    </span>
+  </div>
+
+</div>
+
+</body>
+</html>

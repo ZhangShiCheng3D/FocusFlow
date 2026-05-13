@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>zh_CN</string>
+    <key>CFBundleDisplayName</key>
+    <string>FocusFlow</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.focusflow.app</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>FocusFlow</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>13.0</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2026 FocusFlow. All rights reserved.</string>
+    <key>NSFocusStatusUsageDescription</key>
+    <string>FocusFlow 仅在您启用自动化时触发专注模式快捷指令，不读取通知内容。</string>
+    <key>NSCalendarsUsageDescription</key>
+    <string>FocusFlow 仅在专注时段写入 Busy 日程，不读取您的日程详情。</string>
+    <key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+    <string>FocusFlow 仅写入专注 Busy 时段，并在专注结束后移除该事件。</string>
+    <key>NSCalendarsFullAccessUsageDescription</key>
+    <string>FocusFlow 仅用于兼容旧系统的 Busy 日程写入和移除，不读取您的日程详情。</string>
+</dict>
+</plist>
