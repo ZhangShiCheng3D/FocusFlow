@@ -1,4 +1,4 @@
-name: macOS CI
+﻿name: macOS CI
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -6,6 +6,7 @@ env:
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -35,7 +36,7 @@ jobs:
     name: Package macOS app
     runs-on: macos-15
     needs: build-and-test
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name != 'pull_request'
 
     steps:
       - name: Checkout
@@ -50,3 +51,23 @@ jobs:
           name: FocusFlow-macOS-app
           path: dist/FocusFlow.app.zip
           if-no-files-found: error
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: app-artifact
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Download app artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: FocusFlow-macOS-app
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: FocusFlow.app.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
