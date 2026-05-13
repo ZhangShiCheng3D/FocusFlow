@@ -442,9 +442,7 @@ struct PopoverContentView: View {
     // MARK: - Keyboard Handling
 
     private func setupKeyboardHandling() {
-        keyboardMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self = self else { return event }
-
+        keyboardMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             switch event.keyCode {
             case 53: // Esc — always close panel (never end focus)
                 MenuBarController.shared.closePanel()
@@ -452,10 +450,10 @@ struct PopoverContentView: View {
             case 36: // Enter/Return — handled by .keyboardShortcut on the button
                 return event
             case 49: // Space
-                if !self.panel.selectedSounds.isEmpty,
-                   let firstSoundId = self.panel.selectedSounds.first,
+                if !panel.selectedSounds.isEmpty,
+                   let firstSoundId = panel.selectedSounds.first,
                    let sound = SoundCatalog.allSounds.first(where: { $0.id == firstSoundId }) {
-                    self.toggleSound(sound)
+                    toggleSound(sound)
                 }
                 return nil
             default:

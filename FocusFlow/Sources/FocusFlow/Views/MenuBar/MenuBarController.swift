@@ -34,7 +34,7 @@ final class MenuBarController: NSObject, ObservableObject {
             button.target = self
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
 
-            button.accessibilityLabel = "FocusFlow 菜单栏图标"
+            button.setAccessibilityLabel("FocusFlow 菜单栏图标")
         }
 
         popover = NSPopover()
@@ -216,7 +216,7 @@ final class MenuBarController: NSObject, ObservableObject {
                 systemSymbolName: isPlaying ? "headphones" : "headphones.circle",
                 accessibilityDescription: "FocusFlow"
             )
-            button.accessibilityValue = isPlaying ? "正在播放环境音" : "FocusFlow，未播放"
+            button.setAccessibilityValue(isPlaying ? "正在播放环境音" : "FocusFlow，未播放")
             return
         }
 
@@ -237,8 +237,9 @@ final class MenuBarController: NSObject, ObservableObject {
                                    accessibilityDescription: "FocusFlow")
         }
 
-        button.accessibilityValue = isPlaying ?
-            "正在播放，剩余 \(timerText)" : "已暂停，剩余 \(timerText)"
+        button.setAccessibilityValue(
+            isPlaying ? "正在播放，剩余 \(timerText)" : "已暂停，剩余 \(timerText)"
+        )
     }
 }
 

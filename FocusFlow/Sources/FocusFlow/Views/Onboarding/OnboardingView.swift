@@ -29,15 +29,8 @@ struct OnboardingView: View {
             .padding(.top, 20)
 
             // Page content
-            TabView(selection: $currentPage) {
-                welcomePage.tag(OnboardingPage.welcome)
-                privacyPage.tag(OnboardingPage.privacy)
-                focusPage.tag(OnboardingPage.focus)
-                integrationsPage.tag(OnboardingPage.integrations)
-                donePage.tag(OnboardingPage.done)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .frame(height: 320)
+            currentPageView
+                .frame(height: 320)
 
             // Bottom buttons
             HStack {
@@ -79,6 +72,17 @@ struct OnboardingView: View {
     private func movePage(by delta: Int) {
         guard let next = OnboardingPage(rawValue: currentPage.rawValue + delta) else { return }
         withAnimation { currentPage = next }
+    }
+
+    @ViewBuilder
+    private var currentPageView: some View {
+        switch currentPage {
+        case .welcome: welcomePage
+        case .privacy: privacyPage
+        case .focus: focusPage
+        case .integrations: integrationsPage
+        case .done: donePage
+        }
     }
 
     // MARK: - Welcome Page

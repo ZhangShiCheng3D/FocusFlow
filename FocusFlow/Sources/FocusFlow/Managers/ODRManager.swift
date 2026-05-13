@@ -142,9 +142,9 @@ final class ODRManager: NSObject, ObservableObject {
     // Note: Using completionHandler-based delegate methods for macOS 13 compatibility.
     // The async delegate method variants require macOS 14+.
 
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
-                    didReceive response: URLResponse,
-                    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+    nonisolated func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
+                                didReceive response: URLResponse,
+                                completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 200,
               let url = dataTask.originalRequest?.url?.lastPathComponent else {
@@ -152,42 +152,48 @@ final class ODRManager: NSObject, ObservableObject {
             return
         }
         let soundId = url.replacingOccurrences(of: ".aac", with: "")
-        expectedLengths[soundId] = httpResponse.expectedContentLength
-        completionHandler(.allow)
-    }
-
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
-                    didReceive data: Data) {
-        guard let url = dataTask.originalRequest?.url?.lastPathComponent else { return }
-        let soundId = url.replacingOccurrences(of: ".aac", with: "")
-        accumulatedData[soundId]?.append(data)
-
-        if let expected = expectedLengths[soundId], expected > 0 {
-            let current = Int64(accumulatedData[soundId]?.count ?? 0)
-            downloadProgress[soundId] = max(0.05, min(0.95, Double(current) / Double(expected)))
+        Task { @MainActor in
+            self.expectedLengths[soundId] = httpResponse.expectedContentLength
+            completionHandler(.allow)
         }
     }
 
-    func urlSession(_ session: URLSession, task: URLSessionTask,
-                    didCompleteWithError error: Error?) {
+    nonisolated func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
+                                didReceive data: Data) {
+        guard let url = dataTask.originalRequest?.url?.lastPathComponent else { return }
+        let soundId = url.replacingOccurrences(of: ".aac", with: "")
+        Task { @MainActor in
+            self.accumulatedData[soundId]?.append(data)
+
+            if let expected = self.expectedLengths[soundId], expected > 0 {
+                let current = Int64(self.accumulatedData[soundId]?.count ?? 0)
+                self.downloadProgress[soundId] = max(0.05, min(0.95, Double(current) / Double(expected)))
+            }
+        }
+    }
+
+    nonisolated func urlSession(_ session: URLSession, task: URLSessionTask,
+                                didCompleteWithError error: Error?) {
         guard let url = task.originalRequest?.url?.lastPathComponent else { return }
         let soundId = url.replacingOccurrences(of: ".aac", with: "")
 
-        if let error = error {
-            downloadContinuations[soundId]?.resume(throwing: error)
-        } else if let data = accumulatedData[soundId], !data.isEmpty {
-            downloadContinuations[soundId]?.resume(returning: data)
-        } else {
-            downloadContinuations[soundId]?.resume(throwing: ODRError.downloadFailed)
-        }
+        Task { @MainActor in
+            if let error = error {
+                self.downloadContinuations[soundId]?.resume(throwing: error)
+            } else if let data = self.accumulatedData[soundId], !data.isEmpty {
+                self.downloadContinuations[soundId]?.resume(returning: data)
+            } else {
+                self.downloadContinuations[soundId]?.resume(throwing: ODRError.downloadFailed)
+            }
 
-        resetDownloadState(for: soundId, keepProgress: true)
+            self.resetDownloadState(for: soundId, keepProgress: true)
+        }
     }
 }
 
 // MARK: - URLSessionDataDelegate Conformance
 
-extension ODRManager: @preconcurrency URLSessionDataDelegate {}
+extension ODRManager: URLSessionDataDelegate {}
 
 // MARK: - Cache Management
 

@@ -103,7 +103,7 @@ final class KeyCaptureView: NSView {
     override var acceptsFirstResponder: Bool { true }
 
     override func keyDown(with event: NSEvent) {
-        if let handled = onEvent?(event) {
+        if onEvent?(event) != nil {
             // Event was handled
         } else {
             super.keyDown(with: event)
