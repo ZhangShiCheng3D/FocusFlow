@@ -5,7 +5,7 @@ import SwiftUI
 // MARK: - Menu Bar Controller
 
 @MainActor
-final class MenuBarController: ObservableObject {
+final class MenuBarController: NSObject, ObservableObject {
     static let shared = MenuBarController()
 
     private var statusItem: NSStatusItem?
@@ -16,7 +16,9 @@ final class MenuBarController: ObservableObject {
 
     @Published var isPanelVisible: Bool = false
 
-    private init() {}
+    private override init() {
+        super.init()
+    }
 
     // MARK: - Setup
 
