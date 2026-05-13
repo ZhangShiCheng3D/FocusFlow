@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
@@ -26,13 +26,7 @@
     <true/>
     <key>NSHumanReadableCopyright</key>
     <string>Copyright © 2026 FocusFlow. All rights reserved.</string>
-    <key>NSFocusStatusUsageDescription</key>
-    <string>FocusFlow 仅在您启用自动化时触发专注模式快捷指令，不读取通知内容。</string>
     <key>NSCalendarsUsageDescription</key>
     <string>FocusFlow 仅在专注时段写入 Busy 日程，不读取您的日程详情。</string>
-    <key>NSCalendarsWriteOnlyAccessUsageDescription</key>
-    <string>FocusFlow 仅写入专注 Busy 时段，并在专注结束后移除该事件。</string>
-    <key>NSCalendarsFullAccessUsageDescription</key>
-    <string>FocusFlow 仅用于兼容旧系统的 Busy 日程写入和移除，不读取您的日程详情。</string>
 </dict>
 </plist>
