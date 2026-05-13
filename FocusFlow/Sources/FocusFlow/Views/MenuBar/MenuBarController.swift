@@ -45,8 +45,9 @@ final class MenuBarController: NSObject, ObservableObject {
 
         // Close when clicking outside
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
-            guard let self = self, self.isPanelVisible else { return }
+            guard let self else { return }
             Task { @MainActor in
+                guard self.isPanelVisible else { return }
                 self.closePanel()
             }
         }
