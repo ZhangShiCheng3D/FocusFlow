@@ -21,6 +21,7 @@ DerivedData/
 *.app
 *.dSYM
 *.xcarchive
+.github-artifacts/
 
 # Logs
 *.log
