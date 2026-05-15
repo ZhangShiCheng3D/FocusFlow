@@ -215,10 +215,27 @@ final class FocusStateManager: ObservableObject {
 
     // MARK: - macOS Focus Mode (via Shortcuts)
 
+    /// Checks whether the required Shortcuts are installed in ~/Library/Shortcuts/.
+    /// Returns true only when BOTH FocusFlow-Enable and FocusFlow-Disable shortcuts exist.
+    private var areFocusShortcutsInstalled: Bool {
+        let shortcutsDir = NSString(string: "~/Library/Shortcuts").expandingTildeInPath
+        let enablePath = "\(shortcutsDir)/FocusFlow-Enable.shortcut"
+        let disablePath = "\(shortcutsDir)/FocusFlow-Disable.shortcut"
+        return FileManager.default.fileExists(atPath: enablePath)
+            && FileManager.default.fileExists(atPath: disablePath)
+    }
+
+    func dismissAutomationWarning() {
+        lastAutomationWarning = nil
+    }
+
     private func enableSystemFocus() async {
-        // Primary approach: Shortcuts URL scheme (most reliable, no Accessibility permissions)
-        // User must create a Shortcut named "FocusFlow-Enable" that enables a Focus mode.
-        // App triggers it via URL: shortcuts://run-shortcut?name=FocusFlow-Enable
+        guard areFocusShortcutsInstalled else {
+            lastAutomationWarning = "快捷指令未安装：请在 Shortcuts.app 创建 FocusFlow-Enable 和 FocusFlow-Disable，详情见偏好设置。"
+            print("[FocusState] Shortcut 'FocusFlow-Enable' not found — skipping system focus enable")
+            return
+        }
+
         guard let url = URL(string: "shortcuts://run-shortcut?name=FocusFlow-Enable") else { return }
 
         let config = NSWorkspace.OpenConfiguration()
@@ -226,7 +243,6 @@ final class FocusStateManager: ObservableObject {
         NSWorkspace.shared.open(url, configuration: config) { app, error in
             if let error = error {
                 print("[FocusState] Failed to trigger FocusFlow-Enable shortcut: \(error.localizedDescription)")
-                print("[FocusState] Ensure a Shortcut named 'FocusFlow-Enable' exists in the Shortcuts app.")
             } else {
                 print("[FocusState] Triggered FocusFlow-Enable shortcut")
             }
@@ -234,6 +250,12 @@ final class FocusStateManager: ObservableObject {
     }
 
     private func disableSystemFocus() async {
+        guard areFocusShortcutsInstalled else {
+            lastAutomationWarning = "快捷指令未安装：请在 Shortcuts.app 创建 FocusFlow-Enable 和 FocusFlow-Disable，详情见偏好设置。"
+            print("[FocusState] Shortcut 'FocusFlow-Disable' not found — skipping system focus disable")
+            return
+        }
+
         guard let url = URL(string: "shortcuts://run-shortcut?name=FocusFlow-Disable") else { return }
 
         let config = NSWorkspace.OpenConfiguration()
@@ -241,7 +263,6 @@ final class FocusStateManager: ObservableObject {
         NSWorkspace.shared.open(url, configuration: config) { app, error in
             if let error = error {
                 print("[FocusState] Failed to trigger FocusFlow-Disable shortcut: \(error.localizedDescription)")
-                print("[FocusState] Ensure a Shortcut named 'FocusFlow-Disable' exists in the Shortcuts app.")
             } else {
                 print("[FocusState] Triggered FocusFlow-Disable shortcut")
             }

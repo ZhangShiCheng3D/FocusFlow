@@ -57,36 +57,63 @@ struct PopoverContentView: View {
     // MARK: - Header
 
     private var headerView: some View {
-        HStack {
-            Text("FocusFlow")
-                .font(.headline)
-                .fontWeight(.bold)
+        VStack(spacing: 0) {
+            HStack {
+                Text("FocusFlow")
+                    .font(.headline)
+                    .fontWeight(.bold)
 
-            Spacer()
+                Spacer()
 
-            // Pin button
-            Button(action: { MenuBarController.shared.pinToFloatingWindow() }) {
-                Image(systemName: "pin")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                // Pin button
+                Button(action: { MenuBarController.shared.pinToFloatingWindow() }) {
+                    Image(systemName: "pin")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help("分离为悬浮窗")
+                .accessibilityLabel("分离为悬浮窗")
+
+                // Menu
+                Menu {
+                    Button("偏好设置...") { openSettings() }
+                    Divider()
+                    Button("退出") { NSApp.terminate(nil) }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .menuStyle(.borderlessButton)
+                .frame(width: 20)
+                .accessibilityLabel("更多选项")
             }
-            .buttonStyle(.plain)
-            .help("分离为悬浮窗")
-            .accessibilityLabel("分离为悬浮窗")
 
-            // Menu
-            Menu {
-                Button("偏好设置...") { openSettings() }
-                Divider()
-                Button("退出") { NSApp.terminate(nil) }
-            } label: {
-                Image(systemName: "ellipsis.circle")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+            // Automation warning banner
+            if let warning = focusManager.lastAutomationWarning {
+                HStack(spacing: 6) {
+                    Image(systemName: "info.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundColor(.yellow)
+                    Text(warning)
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Spacer()
+                    Button(action: { focusManager.dismissAutomationWarning() }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(8)
+                .background(Color.yellow.opacity(0.08))
+                .cornerRadius(6)
+                .padding(.top, 6)
             }
-            .menuStyle(.borderlessButton)
-            .frame(width: 20)
-            .accessibilityLabel("更多选项")
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)

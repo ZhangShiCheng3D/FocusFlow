@@ -186,29 +186,20 @@ struct OnboardingView: View {
                 .foregroundColor(.secondary)
 
             VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("是否允许控制专注模式？")
-                        .font(.system(size: 13))
-                    Spacer()
-                    Toggle("", isOn: $prefs.autoEnableFocus)
-                        .toggleStyle(.switch)
-                        .accessibilityLabel("允许控制专注模式")
+                HStack(spacing: 8) {
+                    Image(systemName: "info.circle")
+                        .foregroundColor(.blue)
+                    Text("此功能需要在 Shortcuts.app 中安装配套快捷指令，可在偏好设置中查看详细步骤。")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
                 }
-
-                Text("仅用于开关系统专注模式，不读取通知内容")
-                    .font(.system(size: 11))
-                    .foregroundColor(.secondary)
-
-                Text("可在设置中随时更改")
-                    .font(.system(size: 11))
-                    .foregroundColor(.secondary)
             }
             .padding(16)
-            .background(Color.secondary.opacity(0.06))
+            .background(Color.blue.opacity(0.06))
             .cornerRadius(10)
         }
         .padding(24)
-        .accessibilityLabel("自动化专注模式设置")
+        .accessibilityLabel("自动化专注模式：需要在 Shortcuts.app 中安装配套快捷指令")
     }
 
     // MARK: - Integrations Page

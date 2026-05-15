@@ -64,10 +64,23 @@ struct GeneralSettingsView: View {
                         Toggle("自动开启 macOS 专注模式", isOn: $prefs.autoEnableFocus)
                             .accessibilityHint("专注开始时自动启用系统专注模式屏蔽通知")
 
-                        Text("仅用于开关专注模式，不读取通知内容")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                        if prefs.autoEnableFocus {
+                            VStack(alignment: .leading, spacing: 6) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.yellow)
+                                    Text("需要预先安装配套快捷指令，否则功能不会生效")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.secondary)
+                                }
+                                Text("安装步骤：打开 Shortcuts.app → 新建快捷指令 → 命名为 FocusFlow-Enable（动作为「设置专注模式：开」）和 FocusFlow-Disable（动作为「设置专注模式：关」）")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
                             .padding(.leading, 20)
+                        }
                     }
 
                     VStack(alignment: .leading, spacing: 8) {
