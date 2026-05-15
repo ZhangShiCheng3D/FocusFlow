@@ -19,6 +19,9 @@ struct PopoverContentView: View {
             // Header with pin button
             headerView
 
+            // Automation warning (shortcuts not installed, etc.)
+            automationWarningBanner
+
             // Timer selection
             timerPickerView
 
@@ -57,67 +60,68 @@ struct PopoverContentView: View {
     // MARK: - Header
 
     private var headerView: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text("FocusFlow")
-                    .font(.headline)
-                    .fontWeight(.bold)
+        HStack {
+            Text("FocusFlow")
+                .font(.headline)
+                .fontWeight(.bold)
 
-                Spacer()
+            Spacer()
 
-                // Pin button
-                Button(action: { MenuBarController.shared.pinToFloatingWindow() }) {
-                    Image(systemName: "pin")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
-                .help("分离为悬浮窗")
-                .accessibilityLabel("分离为悬浮窗")
-
-                // Menu
-                Menu {
-                    Button("偏好设置...") { openSettings() }
-                    Divider()
-                    Button("退出") { NSApp.terminate(nil) }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .menuStyle(.borderlessButton)
-                .frame(width: 20)
-                .accessibilityLabel("更多选项")
+            // Pin button
+            Button(action: { MenuBarController.shared.pinToFloatingWindow() }) {
+                Image(systemName: "pin")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
+            .buttonStyle(.plain)
+            .help("分离为悬浮窗")
+            .accessibilityLabel("分离为悬浮窗")
 
-            // Automation warning banner
-            if let warning = focusManager.lastAutomationWarning {
-                HStack(spacing: 6) {
-                    Image(systemName: "info.circle.fill")
-                        .font(.system(size: 12))
-                        .foregroundColor(.yellow)
-                    Text(warning)
-                        .font(.system(size: 11))
-                        .foregroundColor(.secondary)
-                        .lineLimit(3)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Spacer()
-                    Button(action: { focusManager.dismissAutomationWarning() }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(8)
-                .background(Color.yellow.opacity(0.08))
-                .cornerRadius(6)
-                .padding(.top, 6)
+            // Menu
+            Menu {
+                Button("偏好设置...") { openSettings() }
+                Divider()
+                Button("退出") { NSApp.terminate(nil) }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
+            .menuStyle(.borderlessButton)
+            .frame(width: 20)
+            .accessibilityLabel("更多选项")
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)
         .padding(.bottom, 8)
+    }
+
+    // MARK: - Warning Banner
+
+    @ViewBuilder
+    private var automationWarningBanner: some View {
+        if let warning = focusManager.lastAutomationWarning {
+            HStack(spacing: 6) {
+                Image(systemName: "info.circle.fill")
+                    .font(.system(size: 12))
+                    .foregroundColor(.yellow)
+                Text(warning)
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+                Spacer()
+                Button(action: { focusManager.dismissAutomationWarning() }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help("关闭提示")
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 6)
+            .background(Color.yellow.opacity(0.08))
+        }
     }
 
     // MARK: - Timer Picker
