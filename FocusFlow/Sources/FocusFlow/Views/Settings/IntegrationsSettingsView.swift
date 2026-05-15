@@ -89,6 +89,7 @@ struct IntegrationCard: View {
             case .notConfigured:
                 Button("连接") { onConnect() }
                     .buttonStyle(.borderedProminent)
+                    .tint(.ffPrimary)
                     .controlSize(.small)
                     .accessibilityHint("授权 \(name) 连接")
             case .authorized:
@@ -104,9 +105,9 @@ struct IntegrationCard: View {
                     .accessibilityHint("重试 \(name) 授权")
             }
         }
-        .padding(12)
-        .background(Color.secondary.opacity(0.05))
-        .cornerRadius(10)
+        .padding(DesignTokens.spacingMD)
+        .background(Color.ffSurface.opacity(0.3))
+        .cornerRadius(DesignTokens.radiusLG)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(name)：\(statusText)")
     }
@@ -122,7 +123,7 @@ struct IntegrationCard: View {
     private var statusColor: Color {
         switch status {
         case .notConfigured: return .secondary
-        case .authorized: return .green
+        case .authorized: return .ffSuccess
         case .failed(let reason):
             if case .adminConsentRequired = reason { return .orange }
             return .red

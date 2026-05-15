@@ -195,23 +195,18 @@ struct PopoverContentView: View {
 
         var body: some View {
             Button(action: action) {
-                VStack(spacing: 0) {
+                VStack(spacing: 1) {
                     Text("\(minutes)m")
                         .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                        .foregroundColor(isSelected ? .ffPrimary : .secondary)
                     Text(label)
                         .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(isSelected ? .ffPrimary.opacity(0.8) : .secondary)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 6)
-                .background(isSelected ? Color.accentColor.opacity(0.15) : Color.clear)
-                .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(isSelected ? Color.accentColor : Color.secondary.opacity(0.2), lineWidth: 1)
-                )
             }
-            .buttonStyle(.plain)
+            .buttonStyle(TimerChipStyle(isSelected: isSelected))
         }
     }
 
@@ -346,13 +341,15 @@ struct PopoverContentView: View {
     // MARK: - Focus Button
 
     private var focusButtonView: some View {
-        VStack(spacing: 6) {
+        VStack(spacing: DesignTokens.spacingSM) {
             // Countdown display when focusing
             if timerManager.isRunning {
                 HStack {
                     Image(systemName: timerManager.isPaused ? "pause.circle" : "timer")
+                        .foregroundColor(.ffPrimary)
                     Text(timerManager.remainingFormatted)
-                        .font(.system(size: 20, weight: .bold, design: .monospaced))
+                        .font(.system(size: 22, weight: .bold, design: .monospaced))
+                        .foregroundColor(.ffTextPrimary)
 
                     Spacer()
 
@@ -362,24 +359,19 @@ struct PopoverContentView: View {
                     .buttonStyle(.plain)
                     .foregroundColor(.red)
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, DesignTokens.spacingLG)
             }
 
             // Main action button
             Button(action: handleFocusButton) {
-                HStack(spacing: 8) {
+                HStack(spacing: DesignTokens.spacingSM) {
                     Image(systemName: focusButtonIcon)
                     Text(focusButtonLabel)
                         .fontWeight(.semibold)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(focusButtonColor)
-                .foregroundColor(.white)
-                .cornerRadius(10)
             }
-            .buttonStyle(.plain)
-            .padding(.horizontal, 12)
+            .buttonStyle(FocusButtonStyle(isActive: focusManager.focusState != .idle))
+            .padding(.horizontal, DesignTokens.spacingMD)
             .keyboardShortcut(.return, modifiers: [])
             .disabled(showCustomDurationPicker)
             .accessibilityLabel(focusButtonAccessibilityLabel)
@@ -400,14 +392,6 @@ struct PopoverContentView: View {
         case .idle, .ready: return "开始专注"
         case .focusing: return "暂停"
         case .paused: return "继续专注"
-        }
-    }
-
-    private var focusButtonColor: Color {
-        switch focusManager.focusState {
-        case .idle, .ready: return .accentColor
-        case .focusing: return .orange
-        case .paused: return .accentColor
         }
     }
 

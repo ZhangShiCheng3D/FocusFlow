@@ -12,9 +12,9 @@ struct StatisticsSettingsView: View {
 
                 // Summary cards
                 HStack(spacing: 12) {
-                    StatCard(title: "今日", minutes: stats.todayTotalMinutes, color: .blue)
-                    StatCard(title: "本周", minutes: stats.weekTotalMinutes, color: .green)
-                    StatCard(title: "本月", minutes: stats.monthTotalMinutes, color: .purple)
+                    StatCard(title: "今日", minutes: stats.todayTotalMinutes, color: .ffPrimary)
+                    StatCard(title: "本周", minutes: stats.weekTotalMinutes, color: .ffSuccess)
+                    StatCard(title: "本月", minutes: stats.monthTotalMinutes, color: .orange)
                 }
 
                 Divider()
@@ -106,7 +106,7 @@ struct SessionRow: View {
             if session.wasCompleted {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 12))
-                    .foregroundColor(.green)
+                    .foregroundColor(.ffSuccess)
             }
         }
         .padding(.vertical, 4)
@@ -158,6 +158,6 @@ struct HeatmapView: View {
 
     private func heatmapColor(intensity: CGFloat) -> Color {
         if intensity <= 0 { return Color.secondary.opacity(0.1) }
-        return Color.accentColor.opacity(0.2 + intensity * 0.8)
+        return Color.ffPrimary.opacity(0.2 + intensity * 0.8)
     }
 }

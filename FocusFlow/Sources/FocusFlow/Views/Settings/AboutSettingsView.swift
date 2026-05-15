@@ -4,12 +4,17 @@ import SwiftUI
 
 struct AboutSettingsView: View {
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: DesignTokens.spacingLG) {
             Spacer()
 
-            Image(systemName: "headphones")
-                .font(.system(size: 48))
-                .foregroundColor(.accentColor)
+            ZStack {
+                Circle()
+                    .fill(Color.ffPrimary.opacity(0.10))
+                    .frame(width: 80, height: 80)
+                Image(systemName: "headphones")
+                    .font(.system(size: 36))
+                    .foregroundColor(.ffPrimary)
+            }
 
             Text("FocusFlow")
                 .font(.title)
@@ -27,10 +32,10 @@ struct AboutSettingsView: View {
                 .padding(.horizontal, 40)
 
             // Privacy statement
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: DesignTokens.spacingSM) {
                 Label("Local-First 架构", systemImage: "checkmark.shield")
                     .font(.system(size: 12))
-                    .foregroundColor(.green)
+                    .foregroundColor(.ffSuccess)
 
                 Label("核心数据仅存储在您的设备本地", systemImage: "internaldrive")
                     .font(.system(size: 12))
@@ -44,9 +49,9 @@ struct AboutSettingsView: View {
                     .font(.system(size: 12))
                     .foregroundColor(.secondary)
             }
-            .padding(16)
-            .background(Color.secondary.opacity(0.05))
-            .cornerRadius(10)
+            .padding(DesignTokens.spacingLG)
+            .background(Color.ffSurface.opacity(0.3))
+            .cornerRadius(DesignTokens.radiusLG)
 
             Divider()
                 .padding(.horizontal, 40)

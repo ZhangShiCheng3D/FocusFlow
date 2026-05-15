@@ -11,7 +11,7 @@ struct SoundsSettingsView: View {
                 SettingsSectionHeader("音效管理", icon: "speaker.wave.2")
 
                 // Download status
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: DesignTokens.spacingSM) {
                     Text("下载的音效：\(downloadedCount) / \(SoundCatalog.allSounds.count)")
                         .font(.system(size: 13))
 
@@ -19,16 +19,16 @@ struct SoundsSettingsView: View {
                         value: Double(downloadedCount),
                         total: Double(SoundCatalog.allSounds.count)
                     )
-                    .tint(.accentColor)
+                    .tint(.ffPrimary)
                     .accessibilityLabel("已下载 \(downloadedCount) 个音效，共 \(SoundCatalog.allSounds.count) 个")
 
                     Text("缓存大小: \(formattedCacheSize)")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                .padding(12)
-                .background(Color.secondary.opacity(0.05))
-                .cornerRadius(10)
+                .padding(DesignTokens.spacingMD)
+                .background(Color.ffSurface.opacity(0.3))
+                .cornerRadius(DesignTokens.radiusLG)
 
                 // Actions
                 HStack(spacing: 12) {
@@ -100,20 +100,17 @@ struct SoundStatusRow: View {
                 .font(.system(size: 12))
 
             if !sound.isFree {
-                Text("Pro")
-                    .font(.system(size: 8, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 1)
-                    .background(Color.accentColor.opacity(0.7))
-                    .cornerRadius(3)
+                Circle()
+                    .fill(Color.ffPrimary.opacity(0.6))
+                    .frame(width: 5, height: 5)
+                    .help("Pro 音效")
             }
 
             Spacer()
 
             Image(systemName: isDownloaded ? "checkmark.circle.fill" : "icloud.and.arrow.down")
                 .font(.system(size: 12))
-                .foregroundColor(isDownloaded ? .green : .secondary)
+                .foregroundColor(isDownloaded ? .ffSuccess : .secondary)
         }
         .padding(.vertical, 2)
         .padding(.horizontal, 4)

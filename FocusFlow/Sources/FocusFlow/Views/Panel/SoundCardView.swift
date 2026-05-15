@@ -12,55 +12,59 @@ struct SoundCardView: View {
     let onVolumeChange: (Float) -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
-            Button(action: onTap) {
-                VStack(spacing: 2) {
-                    ZStack {
-                        Image(systemName: sound.icon)
-                            .font(.system(size: 22))
-                            .foregroundColor(isSelected ? .accentColor : .secondary)
+        Button(action: onTap) {
+            VStack(spacing: 4) {
+                ZStack {
+                    Image(systemName: sound.icon)
+                        .font(.system(size: 20))
+                        .foregroundColor(isSelected ? .ffPrimary : .secondary)
 
-                        // Download progress ring
-                        if isDownloading {
-                            ProgressRing(progress: downloadProgress ?? 0)
-                                .frame(width: 28, height: 28)
-                        }
-
-                        // Selected indicator
-                        if isSelected {
-                            Circle()
-                                .strokeBorder(Color.accentColor, lineWidth: 2)
-                                .frame(width: 32, height: 32)
-                        }
-
-                        // Pro badge
-                        if !sound.isFree {
-                            Text("Pro")
-                                .font(.system(size: 7, weight: .bold))
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 3)
-                                .padding(.vertical, 1)
-                                .background(Color.accentColor.opacity(0.8))
-                                .cornerRadius(3)
-                                .offset(x: 14, y: -14)
-                        }
+                    // Download progress ring
+                    if isDownloading {
+                        ProgressRing(progress: downloadProgress ?? 0)
+                            .frame(width: 26, height: 26)
                     }
 
-                    Text(sound.displayName)
-                        .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
-                        .lineLimit(1)
-                        .foregroundColor(isSelected ? .primary : .secondary)
+                    // Selected ring
+                    if isSelected {
+                        RoundedRectangle(cornerRadius: DesignTokens.radiusMD)
+                            .strokeBorder(Color.ffPrimary, lineWidth: 1.5)
+                            .frame(width: 34, height: 34)
+                    }
+
+                    // Pro dot (subtle)
+                    if !sound.isFree {
+                        Circle()
+                            .fill(Color.ffPrimary.opacity(0.7))
+                            .frame(width: 5, height: 5)
+                            .offset(x: 15, y: -15)
+                    }
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 6)
+
+                Text(sound.displayName)
+                    .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
+                    .lineLimit(1)
+                    .foregroundColor(isSelected ? .ffTextPrimary : .secondary)
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel("\(sound.displayName)，\(isSelected ? "已选中，音量 \(Int(volume * 100))%" : "未选中")")
-            .accessibilityHint(isSelected ? "在下方已激活音效中调节音量" : "双击播放")
-            .accessibilityAddTraits(isSelected ? .isSelected : [])
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, DesignTokens.spacingSM)
+            .padding(.horizontal, 2)
         }
-        .background(isSelected ? Color.accentColor.opacity(0.08) : Color.clear)
-        .cornerRadius(8)
+        .buttonStyle(.plain)
+        .background(
+            RoundedRectangle(cornerRadius: DesignTokens.radiusMD)
+                .fill(isSelected ? Color.ffPrimary.opacity(0.10) : Color.ffSurface.opacity(0.4))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: DesignTokens.radiusMD)
+                .stroke(
+                    isSelected ? Color.ffPrimary.opacity(0.3) : Color.secondary.opacity(0.08),
+                    lineWidth: 1
+                )
+        )
+        .accessibilityLabel("\(sound.displayName)，\(isSelected ? "已选中，音量 \(Int(volume * 100))%" : "未选中")")
+        .accessibilityHint(isSelected ? "在下方已激活音效中调节音量" : "双击播放")
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
@@ -71,11 +75,11 @@ struct ProgressRing: View {
 
     var body: some View {
         Circle()
-            .stroke(Color.secondary.opacity(0.2), lineWidth: 2)
+            .stroke(Color.secondary.opacity(0.15), lineWidth: 2)
             .overlay(
                 Circle()
                     .trim(from: 0, to: progress)
-                    .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                    .stroke(Color.ffPrimary, style: StrokeStyle(lineWidth: 2, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .animation(.linear(duration: 0.2), value: progress)
             )
@@ -90,24 +94,22 @@ struct ActiveSoundRow: View {
     let onStop: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: DesignTokens.spacingSM) {
             Image(systemName: sound.icon)
                 .font(.system(size: 14))
-                .foregroundColor(.accentColor)
+                .foregroundColor(.ffPrimary)
                 .accessibilityHidden(true)
 
             Text(sound.displayName)
                 .font(.system(size: 12))
                 .lineLimit(1)
+                .foregroundColor(.ffTextPrimary)
 
-            Slider(value: $volume, in: 0...1.0) { editing in
-                if !editing {
-                    // Volume change committed
-                }
-            }
-            .frame(width: 100)
-            .accessibilityLabel("\(sound.displayName) 音量")
-            .accessibilityValue("\(Int(volume * 100))%")
+            Slider(value: $volume, in: 0...1.0) { _ in }
+                .frame(width: 90)
+                .tint(.ffPrimary)
+                .accessibilityLabel("\(sound.displayName) 音量")
+                .accessibilityValue("\(Int(volume * 100))%")
 
             Text("\(Int(volume * 100))%")
                 .font(.system(size: 10, design: .monospaced))
@@ -122,7 +124,10 @@ struct ActiveSoundRow: View {
             .buttonStyle(.plain)
             .accessibilityLabel("停止 \(sound.displayName)")
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 4)
+        .padding(.horizontal, DesignTokens.spacingSM)
+        .background(Color.ffSurface.opacity(0.3))
+        .cornerRadius(DesignTokens.radiusSM)
     }
 }
 
@@ -140,6 +145,7 @@ struct PresetCardView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(preset.name)
                         .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.ffTextPrimary)
                     Text(soundNames)
                         .font(.system(size: 10))
                         .foregroundColor(.secondary)
@@ -150,14 +156,16 @@ struct PresetCardView: View {
 
                 Image(systemName: "arrow.forward.circle")
                     .font(.system(size: 16))
-                    .foregroundColor(isHovering ? .accentColor : .secondary)
+                    .foregroundColor(isHovering ? .ffPrimary : .secondary)
             }
-            .padding(10)
-            .background(isHovering ? Color.accentColor.opacity(0.06) : Color.clear)
-            .cornerRadius(8)
+            .padding(DesignTokens.spacingMD)
+            .background(
+                RoundedRectangle(cornerRadius: DesignTokens.radiusMD)
+                    .fill(isHovering ? Color.ffPrimary.opacity(0.06) : Color.clear)
+            )
             .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
+                RoundedRectangle(cornerRadius: DesignTokens.radiusMD)
+                    .stroke(Color.secondary.opacity(0.12), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)

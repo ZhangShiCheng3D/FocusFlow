@@ -51,13 +51,14 @@ struct OnboardingView: View {
                         movePage(by: 1)
                     }
                     .buttonStyle(.borderedProminent)
+                    .tint(.ffPrimary)
                 } else {
                     Button("开始使用 FocusFlow") {
                         PreferencesManager.shared.hasCompletedOnboarding = true
                         dismiss()
                         NSApp.keyWindow?.close()
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(FocusButtonStyle())
                     .keyboardShortcut(.return, modifiers: [])
                 }
             }
@@ -88,10 +89,15 @@ struct OnboardingView: View {
     // MARK: - Welcome Page
 
     private var welcomePage: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "headphones")
-                .font(.system(size: 56))
-                .foregroundColor(.accentColor)
+        VStack(spacing: DesignTokens.spacingLG) {
+            ZStack {
+                Circle()
+                    .fill(Color.ffPrimary.opacity(0.12))
+                    .frame(width: 96, height: 96)
+                Image(systemName: "headphones")
+                    .font(.system(size: 44))
+                    .foregroundColor(.ffPrimary)
+            }
 
             Text("欢迎使用 FocusFlow")
                 .font(.title)
@@ -105,9 +111,8 @@ struct OnboardingView: View {
                 .multilineTextAlignment(.center)
                 .font(.body)
                 .foregroundColor(.secondary)
-                .padding(.top, 8)
         }
-        .padding(32)
+        .padding(DesignTokens.spacing2XL)
         .accessibilityLabel("欢迎页面：FocusFlow 是数字工位氛围构建器和防打扰效率工具")
     }
 
@@ -271,10 +276,15 @@ struct OnboardingView: View {
     // MARK: - Done Page
 
     private var donePage: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 56))
-                .foregroundColor(.green)
+        VStack(spacing: DesignTokens.spacingLG) {
+            ZStack {
+                Circle()
+                    .fill(Color.ffSuccess.opacity(0.12))
+                    .frame(width: 96, height: 96)
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 48))
+                    .foregroundColor(.ffSuccess)
+            }
 
             Text("一切就绪！")
                 .font(.title)
@@ -285,16 +295,15 @@ struct OnboardingView: View {
                 .font(.body)
                 .foregroundColor(.secondary)
 
-            VStack(spacing: 4) {
+            VStack(spacing: 6) {
                 Label("双击图标快速开始上次配置", systemImage: "hand.tap")
                 Label("Tab/空格键纯键盘操作", systemImage: "keyboard")
                 Label("Esc 随时关闭面板", systemImage: "escape")
             }
             .font(.system(size: 12))
             .foregroundColor(.secondary)
-            .padding(.top, 8)
         }
-        .padding(32)
+        .padding(DesignTokens.spacing2XL)
         .accessibilityLabel("设置完成，开始使用 FocusFlow")
     }
 }
