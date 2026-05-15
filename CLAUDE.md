@@ -147,6 +147,25 @@ NSStatusItem (menu bar icon)
 
 Defined as `SoundCatalog.allSounds` (static `[Sound]`, 24 sounds). Free tier: white_noise, rain_light, cafe (isFree=true, isDownloaded=true, bundled in app). Pro tier: 21 sounds (isFree=false, downloaded on-demand from `cdn.focusflow.app/sounds/{fileName}` via ODRManager). Soundscape presets are in `Soundscape.presets` (5 built-in mixes).
 
+## CDN / Cloudflare R2
+
+Pro sound files (.aac) are served from Cloudflare R2 behind `cdn.focusflow.app`. The remoteURL is constructed in `Models.swift:54`.
+
+**Credentials**: Cloudflare API token stored in `.env.cloudflare` (gitignored). Account ID `fb6e809e6014f60d4bfc5e25747d6d7d`. Token valid until 2027-05-31, scoped to R2 Read & Write.
+
+**Scripts**:
+- `scripts/generate_sounds.sh` — ffmpeg-based sound synthesis (generates 16/24 sounds algorithmically)
+- `scripts/download_sounds.sh` — download guide for remaining 8 sounds
+
+**R2 API usage** (if token available):
+```bash
+source .env.cloudflare
+curl -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets"
+```
+
+**Note**: R2 must be manually enabled once via Cloudflare Dashboard before API calls work. Domain `focusflow.app` needs to be added to Cloudflare DNS for custom domain binding.
+
 ## App Bundle & Signing
 
 `FocusFlow.entitlements` — requires hardened runtime and app sandbox for App Store. `scripts/package_app.sh` handles release packaging locally (ad-hoc signed). App Store submission uses `scripts/submit_app_store.sh` with proper signing identities and provisioning profiles from CI secrets.
