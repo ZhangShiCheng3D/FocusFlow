@@ -19,7 +19,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Generate sound files (ffmpeg)
+      - name: Install ffmpeg
+        run: brew install ffmpeg
+
+      - name: Generate sound files
         run: bash scripts/ci_generate_sounds.sh
 
       - name: Create/Update Release and upload assets
