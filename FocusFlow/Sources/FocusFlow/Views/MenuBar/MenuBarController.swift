@@ -110,8 +110,13 @@ final class MenuBarController: NSObject, ObservableObject {
 
     func pinToFloatingWindow() {
         closePanel()
-        floatingWidget = FloatingWidgetWindow()
-        floatingWidget?.show()
+        if let existing = floatingWidget {
+            existing.makeKeyAndOrderFront(nil)
+            return
+        }
+        let widget = FloatingWidgetWindow()
+        widget.show()
+        floatingWidget = widget
     }
 
     func unpinFromFloatingWindow() {

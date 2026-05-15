@@ -19,7 +19,21 @@ swift test --package-path FocusFlow --filter FocusFlowTests/testSoundCatalogCoun
 
 # Build and run the app
 swift run --package-path FocusFlow
+
+# Package app for distribution (ad-hoc signed, outputs dist/FocusFlow.app.zip)
+bash scripts/package_app.sh
 ```
+
+## CI/CD
+
+Two GitHub Actions workflows on `macos-15` runners:
+
+| Workflow | Trigger | What it does |
+|----------|---------|--------------|
+| `macos-ci.yml` | push/PR to main, `v*` tags, manual | Build → test → package .app → upload artifact; creates GitHub Release on `v*` tags |
+| `app-store-submit.yml` | `appstore-v*` tags, manual | Build → test → import certs/profiles → archive → export → optionally upload to App Store Connect |
+
+**App Store secrets** live in the `app-store` GitHub Environment (certificates, provisioning profile, App Store Connect API key). The `package_app.sh` script uses ad-hoc signing — only suitable for CI artifacts and local smoke testing. Release distribution needs Developer ID signing + notarization.
 
 ## Project Overview
 
@@ -131,7 +145,15 @@ NSStatusItem (menu bar icon)
 
 ## Sound Catalog
 
-Defined as `SoundCatalog.allSounds` (static `[Sound]`, 21 sounds). Free tier: white_noise, rain_light, cafe (isFree=true, isDownloaded=true, bundled in app). Pro tier: 18 sounds (isFree=false, downloaded on-demand from `cdn.focusflow.app/sounds/{fileName}` via ODRManager). Soundscape presets are in `Soundscape.presets` (5 built-in mixes).
+Defined as `SoundCatalog.allSounds` (static `[Sound]`, 24 sounds). Free tier: white_noise, rain_light, cafe (isFree=true, isDownloaded=true, bundled in app). Pro tier: 21 sounds (isFree=false, downloaded on-demand from `cdn.focusflow.app/sounds/{fileName}` via ODRManager). Soundscape presets are in `Soundscape.presets` (5 built-in mixes).
+
+## App Bundle & Signing
+
+`FocusFlow.entitlements` — requires hardened runtime and app sandbox for App Store. `scripts/package_app.sh` handles release packaging locally (ad-hoc signed). App Store submission uses `scripts/submit_app_store.sh` with proper signing identities and provisioning profiles from CI secrets.
+
+## Test Coverage
+
+Tests in `FocusFlowTests.swift` cover: Sound catalog integrity (count, uniqueness, categories), Soundscape presets (validity, max mix count), FocusSession (creation, Codable round-trip, actual duration), TimerPresets defaults, IntegrationStatus errors (descriptions, silent flag), Preferences defaults, Timer progress clamping, ODR URL generation, and bundled download state.
 
 ## Keychain Token Storage
 
