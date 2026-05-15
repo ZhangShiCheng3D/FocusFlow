@@ -18,7 +18,9 @@ echo ""
 # 辅助函数: 用 ffmpeg 合成音效
 # ────────────────────────────────────────────
 gen() {
-  local name="$1" duration="$2" shift 2
+  local name="$1"
+  local duration="$2"
+  shift 2
   if [ -f "$OUT/$name" ]; then
     echo "  SKIP $name (exists)"
     return 0
