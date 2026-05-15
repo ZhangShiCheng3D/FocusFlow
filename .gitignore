@@ -23,6 +23,7 @@ DerivedData/
 *.xcarchive
 .github-artifacts/
 dist/
+build/
 
 # Logs
 *.log

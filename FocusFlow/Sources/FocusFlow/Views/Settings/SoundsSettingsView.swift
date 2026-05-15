@@ -32,8 +32,8 @@ struct SoundsSettingsView: View {
 
                 // Actions
                 HStack(spacing: 12) {
-                    Button("下载全部 Pro 音效") {
-                        Task { await odr.preloadProSounds() }
+                    Button("下载全部音效") {
+                        Task { await odr.preloadAvailableRemoteSounds() }
                     }
                     .buttonStyle(.borderedProminent)
 

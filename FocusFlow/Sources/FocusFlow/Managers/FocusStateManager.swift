@@ -69,12 +69,12 @@ final class FocusStateManager: ObservableObject {
         currentSessionID = sessionID
         lastAutomationWarning = nil
 
-        // 1. Pre-download any uncached Pro sounds via ODRManager for progress UI,
+        // 1. Pre-download any uncached sounds via ODRManager for progress UI,
         //    then start audio playback.
         for soundId in sessionSoundIds {
             guard let sound = SoundCatalog.allSounds.first(where: { $0.id == soundId }) else { continue }
 
-            if !sound.isFree && !ODRManager.shared.isSoundDownloaded(sound) {
+            if !ODRManager.shared.isSoundDownloaded(sound) {
                 do {
                     try await ODRManager.shared.downloadSound(sound)
                 } catch {

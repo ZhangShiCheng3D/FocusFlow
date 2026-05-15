@@ -145,11 +145,20 @@ final class FocusFlowTests: XCTestCase {
 
     func testSoundRemoteURLs() {
         for sound in SoundCatalog.allSounds {
-            if !sound.isFree {
-                XCTAssertNotNil(sound.remoteURL, "Pro sound '\(sound.name)' should have a remote URL")
-                XCTAssertTrue(sound.remoteURL!.absoluteString.contains("cdn.focusflow.app"),
-                              "Pro sound URL should point to CDN")
-            }
+            XCTAssertNotNil(sound.remoteURL, "Sound '\(sound.name)' should have a remote fallback URL")
+            XCTAssertTrue(sound.remoteURL!.absoluteString.contains("cdn.focusflow.app"),
+                          "Sound URL should point to CDN")
+        }
+    }
+
+    @MainActor
+    func testBundledDownloadStateRequiresActualBundleResource() {
+        for sound in SoundCatalog.allSounds where sound.isDownloaded {
+            XCTAssertEqual(
+                ODRManager.shared.isSoundDownloaded(sound),
+                sound.bundleURL != nil,
+                "Bundled sound '\(sound.id)' must not be reported as downloaded unless the resource exists"
+            )
         }
     }
 

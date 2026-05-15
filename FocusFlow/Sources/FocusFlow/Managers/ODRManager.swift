@@ -26,9 +26,18 @@ final class ODRManager: NSObject, ObservableObject {
     // MARK: - Check & Download
 
     func isSoundDownloaded(_ sound: Sound) -> Bool {
-        if sound.isDownloaded { return true }  // Bundle sounds
-        guard let localURL = sound.localURL else { return false }
-        return FileManager.default.fileExists(atPath: localURL.path)
+        if let localURL = sound.localURL,
+           FileManager.default.fileExists(atPath: localURL.path) {
+            return true
+        }
+
+        // Catalog metadata marks bundled sounds, but the packaged app must
+        // actually contain the resource before we report it as available.
+        if sound.isDownloaded {
+            return sound.bundleURL != nil
+        }
+
+        return false
     }
 
     func downloadSound(_ sound: Sound) async throws {
@@ -66,6 +75,13 @@ final class ODRManager: NSObject, ObservableObject {
     func preloadProSounds() async {
         let proSounds = SoundCatalog.allSounds.filter { !$0.isFree }
         await downloadSounds(proSounds)
+    }
+
+    func preloadAvailableRemoteSounds() async {
+        let missingSounds = SoundCatalog.allSounds.filter { sound in
+            sound.remoteURL != nil && !isSoundDownloaded(sound)
+        }
+        await downloadSounds(missingSounds)
     }
 
     // MARK: - Lifecycle

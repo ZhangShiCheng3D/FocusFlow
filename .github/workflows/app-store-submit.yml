@@ -72,7 +72,7 @@ jobs:
           chmod 600 "$APP_STORE_CONNECT_API_KEY_PATH"
 
           UPLOAD_FLAG=""
-          if [ "${{ github.event.inputs.upload }}" = "true" ] || [ -n "${{ github.ref_name }}" ]; then
+          if [ "${{ github.event_name }}" = "push" ] || [ "${{ github.event.inputs.upload }}" = "true" ]; then
             UPLOAD_FLAG=""
           else
             UPLOAD_FLAG="--no-upload"

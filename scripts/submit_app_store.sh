@@ -109,6 +109,20 @@ if [ "$UPLOAD" = true ]; then
         exit 0
     fi
 
+    if [ -z "$APP_STORE_CONNECT_API_KEY_PATH" ] || [ ! -f "$APP_STORE_CONNECT_API_KEY_PATH" ]; then
+        echo -e "${RED}ERROR: APP_STORE_CONNECT_API_KEY_PATH does not point to a .p8 key file.${NC}"
+        echo "  Exported package is at: $EXPORT_DIR"
+        exit 1
+    fi
+
+    KEY_DIR="$HOME/.appstoreconnect/private_keys"
+    ALTOOL_KEY_PATH="$KEY_DIR/AuthKey_${APP_STORE_CONNECT_KEY_ID}.p8"
+    mkdir -p "$KEY_DIR"
+    if [ "$APP_STORE_CONNECT_API_KEY_PATH" != "$ALTOOL_KEY_PATH" ]; then
+        cp "$APP_STORE_CONNECT_API_KEY_PATH" "$ALTOOL_KEY_PATH"
+    fi
+    chmod 600 "$ALTOOL_KEY_PATH"
+
     PKG_FILE="$(ls "$EXPORT_DIR"/*.pkg 2>/dev/null || true)"
     if [ -z "$PKG_FILE" ]; then
         echo -e "${RED}ERROR: No .pkg found in export directory.${NC}"

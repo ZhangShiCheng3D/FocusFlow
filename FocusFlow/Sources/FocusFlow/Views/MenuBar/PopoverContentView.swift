@@ -423,7 +423,7 @@ struct PopoverContentView: View {
 
             // Single Task: download first (if needed), then play
             Task {
-                if !sound.isDownloaded && !odr.isSoundDownloaded(sound) {
+                if !odr.isSoundDownloaded(sound) {
                     do {
                         try await odr.downloadSound(sound)
                     } catch {
