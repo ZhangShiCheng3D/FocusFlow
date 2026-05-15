@@ -122,6 +122,7 @@ final class MenuBarController: NSObject, ObservableObject {
     func unpinFromFloatingWindow() {
         floatingWidget?.close()
         floatingWidget = nil
+        showPanel()
     }
 
     var isFloatingWidgetVisible: Bool {
@@ -287,12 +288,13 @@ func ProgressPieImage(progress: Double, isPlaying: Bool) -> NSImage {
 final class FloatingWidgetWindow: NSWindow {
     init() {
         super.init(
-            contentRect: NSRect(x: 0, y: 0, width: 280, height: 420),
+            contentRect: NSRect(x: 0, y: 0, width: 320, height: 500),
             styleMask: [.borderless, .resizable],
             backing: .buffered,
             defer: false
         )
 
+        self.minSize = NSSize(width: 280, height: 360)
         self.isReleasedWhenClosed = false
         self.level = .floating
         self.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
@@ -315,11 +317,11 @@ final class FloatingWidgetWindow: NSWindow {
         hostingView.autoresizingMask = [.width, .height]
         contentView.addSubview(hostingView)
 
-        // Position near menu bar
+        // Position near menu bar (top-right corner)
         if let screen = NSScreen.main {
             let screenFrame = screen.visibleFrame
-            let x = screenFrame.maxX - 300
-            let y = screenFrame.maxY - 440
+            let x = screenFrame.maxX - 340
+            let y = screenFrame.maxY - 520
             self.setFrameOrigin(NSPoint(x: x, y: y))
         }
     }

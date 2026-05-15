@@ -67,15 +67,21 @@ struct PopoverContentView: View {
 
             Spacer()
 
-            // Pin button
-            Button(action: { MenuBarController.shared.pinToFloatingWindow() }) {
-                Image(systemName: "pin")
+            // Pin / Unpin button
+            Button(action: {
+                if MenuBarController.shared.isFloatingWidgetVisible {
+                    MenuBarController.shared.unpinFromFloatingWindow()
+                } else {
+                    MenuBarController.shared.pinToFloatingWindow()
+                }
+            }) {
+                Image(systemName: MenuBarController.shared.isFloatingWidgetVisible ? "pin.slash" : "pin")
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
             .buttonStyle(.plain)
-            .help("分离为悬浮窗")
-            .accessibilityLabel("分离为悬浮窗")
+            .help(MenuBarController.shared.isFloatingWidgetVisible ? "回到菜单栏面板" : "分离为悬浮窗")
+            .accessibilityLabel(MenuBarController.shared.isFloatingWidgetVisible ? "回到菜单栏面板" : "分离为悬浮窗")
 
             // Menu
             Menu {
