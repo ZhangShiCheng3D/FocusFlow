@@ -147,24 +147,22 @@ NSStatusItem (menu bar icon)
 
 Defined as `SoundCatalog.allSounds` (static `[Sound]`, 24 sounds). Free tier: white_noise, rain_light, cafe (isFree=true, isDownloaded=true, bundled in app). Pro tier: 21 sounds (isFree=false, downloaded on-demand from `cdn.focusflow.app/sounds/{fileName}` via ODRManager). Soundscape presets are in `Soundscape.presets` (5 built-in mixes).
 
-## CDN / Cloudflare R2
+## CDN / Sound File Hosting
 
-Pro sound files (.aac) are served from Cloudflare R2 behind `cdn.focusflow.app`. The remoteURL is constructed in `Models.swift:54`.
+Pro sound files (.aac, 24 total) are served from **GitHub Releases** — zero cost, no bank card needed.
 
-**Credentials**: Cloudflare API token stored in `.env.cloudflare` (gitignored). Account ID `fb6e809e6014f60d4bfc5e25747d6d7d`. Token valid until 2027-05-31, scoped to R2 Read & Write.
-
-**Scripts**:
-- `scripts/generate_sounds.sh` — ffmpeg-based sound synthesis (generates 16/24 sounds algorithmically)
-- `scripts/download_sounds.sh` — download guide for remaining 8 sounds
-
-**R2 API usage** (if token available):
-```bash
-source .env.cloudflare
-curl -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-  "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/r2/buckets"
+**Download URL** (`Models.swift:54`):
+```
+https://github.com/ZhangShiCheng3D/FocusFlow/releases/download/sounds-v1/{fileName}
 ```
 
-**Note**: R2 must be manually enabled once via Cloudflare Dashboard before API calls work. Domain `focusflow.app` needs to be added to Cloudflare DNS for custom domain binding.
+**CI upload**: `.github/workflows/upload-sounds.yml` triggers on `sounds-v*` tags or manual dispatch. Uses `scripts/ci_generate_sounds.sh` (ffmpeg synthesis on macOS runner) → uploads all 24 .aac files as release assets.
+
+**To regenerate sounds**: push a new tag like `sounds-v2`, or manually trigger `upload-sounds.yml` from the Actions tab. Then update the tag name in `Models.swift:54`.
+
+**Local generation** (Mac only): `bash scripts/generate_sounds.sh` requires `brew install ffmpeg`.
+
+**Cloudflare backup** (optional): API token in `.env.cloudflare` (gitignored), Account ID `fb6e809e6014f60d4bfc5e25747d6d7d`. R2 bucket not yet created — manual enable needed via dashboard.
 
 ## App Bundle & Signing
 

@@ -146,8 +146,8 @@ final class FocusFlowTests: XCTestCase {
     func testSoundRemoteURLs() {
         for sound in SoundCatalog.allSounds {
             XCTAssertNotNil(sound.remoteURL, "Sound '\(sound.name)' should have a remote fallback URL")
-            XCTAssertTrue(sound.remoteURL!.absoluteString.contains("cdn.focusflow.app"),
-                          "Sound URL should point to CDN")
+            XCTAssertTrue(sound.remoteURL!.absoluteString.contains("github.com/ZhangShiCheng3D/FocusFlow/releases/download"),
+                          "Sound URL should point to GitHub Releases")
         }
     }
 
