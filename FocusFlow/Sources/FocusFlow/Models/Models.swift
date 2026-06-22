@@ -12,7 +12,6 @@ struct Sound: Identifiable, Codable, Equatable, Hashable {
     let icon: String
     let isFree: Bool
     let isDownloaded: Bool
-    var volume: Float
 
     init(
         id: String,
@@ -22,8 +21,7 @@ struct Sound: Identifiable, Codable, Equatable, Hashable {
         fileName: String,
         icon: String,
         isFree: Bool = false,
-        isDownloaded: Bool = false,
-        volume: Float = 0.7
+        isDownloaded: Bool = false
     ) {
         self.id = id
         self.name = name
@@ -33,7 +31,6 @@ struct Sound: Identifiable, Codable, Equatable, Hashable {
         self.icon = icon
         self.isFree = isFree
         self.isDownloaded = isDownloaded
-        self.volume = volume
     }
 
     var displayName: String { nameCN }
@@ -231,7 +228,6 @@ struct FocusSession: Identifiable, Codable {
 
 enum FocusState: Equatable {
     case idle
-    case ready(duration: Int)
     case focusing(endTime: Date, duration: Int)
     case paused(remaining: TimeInterval)
 }
