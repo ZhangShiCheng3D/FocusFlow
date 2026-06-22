@@ -16,10 +16,16 @@ final class PreferencesManager: ObservableObject {
     }
     private var didFinishInit = false
     @Published var useGlobalHotkey: Bool {
-        didSet { save("useGlobalHotkey", value: useGlobalHotkey) }
+        didSet {
+            save("useGlobalHotkey", value: useGlobalHotkey)
+            if didFinishInit { applyHotkey() }
+        }
     }
     @Published var hotkeyCombo: String {
-        didSet { save("hotkeyCombo", value: hotkeyCombo) }
+        didSet {
+            save("hotkeyCombo", value: hotkeyCombo)
+            if didFinishInit { applyHotkey() }
+        }
     }
     @Published var defaultDuration: Int {
         didSet { save("defaultDuration", value: defaultDuration) }
@@ -76,6 +82,11 @@ final class PreferencesManager: ObservableObject {
         defaults.set(value, forKey: key)
     }
 
+    /// Registers or clears the global hotkey to match the current settings.
+    func applyHotkey() {
+        GlobalHotkeyManager.shared.apply(enabled: useGlobalHotkey, combo: hotkeyCombo)
+    }
+
     /// Registers or unregisters the app as a login item using SMAppService (macOS 13+).
     private func setLaunchAtLogin(_ enable: Bool) {
         do {
@@ -115,6 +126,10 @@ final class PreferencesManager: ObservableObject {
 
         // Ensure SMAppService is in sync with the reset state
         try? SMAppService.mainApp.unregister()
+
+        // didFinishInit was suppressed above, so the hotkey didSet never fired —
+        // clear any live registration explicitly.
+        GlobalHotkeyManager.shared.unregisterHotkey()
     }
 }
 

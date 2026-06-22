@@ -1,4 +1,5 @@
 import XCTest
+import Carbon.HIToolbox
 @testable import FocusFlow
 
 final class FocusFlowTests: XCTestCase {
@@ -185,6 +186,29 @@ final class FocusFlowTests: XCTestCase {
         XCTAssertEqual(decoded.durationMinutes, 45)
         XCTAssertEqual(decoded.soundsUsed, ["rain_light", "cafe"])
         XCTAssertTrue(decoded.wasCompleted)
+    }
+
+    // MARK: - Global Hotkey Combo Parsing
+
+    func testHotKeyComboRejectsInvalidStrings() {
+        XCTAssertNil(HotKeyCombo(string: ""), "empty string is not a valid combo")
+        XCTAssertNil(HotKeyCombo(string: "F"), "a key with no modifier is invalid")
+        XCTAssertNil(HotKeyCombo(string: "⌘"), "a modifier with no key is invalid")
+        XCTAssertNil(HotKeyCombo(string: "⌘⌥-"), "a non-alphanumeric key is invalid")
+    }
+
+    func testHotKeyComboParsesModifiersAndKey() {
+        let combo = HotKeyCombo(string: "⌘⌥F")
+        XCTAssertNotNil(combo)
+        XCTAssertEqual(combo?.keyCode, UInt32(kVK_ANSI_F))
+        XCTAssertEqual(combo!.carbonModifiers & UInt32(cmdKey), UInt32(cmdKey))
+        XCTAssertEqual(combo!.carbonModifiers & UInt32(optionKey), UInt32(optionKey))
+        XCTAssertEqual(combo!.carbonModifiers & UInt32(shiftKey), 0)
+    }
+
+    func testHotKeyComboIsCaseInsensitive() {
+        XCTAssertEqual(HotKeyCombo(string: "⌃a")?.keyCode, UInt32(kVK_ANSI_A))
+        XCTAssertEqual(HotKeyCombo(string: "⌃A")?.keyCode, UInt32(kVK_ANSI_A))
     }
 
     // MARK: - Session Timing (Robust)

@@ -1,0 +1,153 @@
+<title>FocusFlow 系统性优化审计</title>
+<style>
+  :root{
+    --bg:#0f1417; --card:#161d22; --line:#26313a; --ink:#e8eef2; --mut:#93a3ad;
+    --p0:#ff5c5c; --p1:#ffb13c; --p2:#5cc8ff; --p3:#8b93ff; --ok:#3fd08a; --acc:#5cc8ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,"PingFang SC","Segoe UI",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:48px 24px 80px}
+  h1{font-size:30px;margin:0 0 6px;letter-spacing:-.5px}
+  .sub{color:var(--mut);margin:0 0 28px}
+  .verdict{background:linear-gradient(135deg,#13211b,#0f1417);border:1px solid #1f3a2c;
+    border-radius:14px;padding:20px 22px;margin:0 0 32px}
+  .verdict b{color:var(--ok)}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 36px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .stat .n{font-size:26px;font-weight:700}
+  .stat .l{color:var(--mut);font-size:12px;margin-top:2px}
+  .item{background:var(--card);border:1px solid var(--line);border-left-width:4px;
+    border-radius:12px;padding:18px 20px;margin:0 0 16px}
+  .item.p0{border-left-color:var(--p0)} .item.p1{border-left-color:var(--p1)}
+  .item.p2{border-left-color:var(--p2)} .item.p3{border-left-color:var(--p3)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;
+    vertical-align:middle;margin-right:10px}
+  .tag.p0{background:rgba(255,92,92,.16);color:var(--p0)}
+  .tag.p1{background:rgba(255,177,60,.16);color:var(--p1)}
+  .tag.p2{background:rgba(92,200,255,.16);color:var(--p2)}
+  .tag.p3{background:rgba(139,147,255,.16);color:var(--p3)}
+  .item h3{display:inline;font-size:17px;margin:0;vertical-align:middle}
+  .item .body{margin-top:12px}
+  .item p{margin:8px 0}
+  .loc{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:12.5px;color:var(--acc);
+    background:#0c1115;border:1px solid var(--line);border-radius:6px;padding:1px 7px}
+  .rec{margin-top:12px;padding:11px 14px;background:#0c1115;border:1px solid var(--line);
+    border-radius:8px;font-size:14px}
+  .rec b{color:var(--ok)}
+  code{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:13px;
+    background:#0c1115;border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  h2.sec{font-size:14px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);
+    margin:40px 0 16px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  ul{margin:8px 0;padding-left:22px} li{margin:5px 0}
+  .ok-note{color:var(--mut)}
+  .ok-note b{color:var(--ink)}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13.5px}
+  td,th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-weight:600}
+  @media(max-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+
+<div class="wrap">
+  <h1>FocusFlow 系统性优化审计</h1>
+  <p class="sub">macOS 菜单栏白噪声 App · Swift/SwiftUI · 约 4,800 行 · 2026-06-22</p>
+
+  <div class="verdict">
+    <b>总体结论：代码库质量高，无需大改。</b> 单例 Manager 架构清晰，音频引擎重启协议、会话竞态防护（<code>isCurrentSession</code> UUID 校验）、Keychain→UserDefaults 回退、墙钟计时防漂移等关键细节都处理得当，注释充分。本次审计发现 <b>1 个真实功能性 bug</b>、少量健壮性与死代码问题，<b>不存在</b>需要重构的架构缺陷。
+  </div>
+
+  <div class="grid">
+    <div class="stat"><div class="n" style="color:var(--ok)">1 ✓</div><div class="l">P0 已修复</div></div>
+    <div class="stat"><div class="n" style="color:var(--p1)">2</div><div class="l">P1 健壮性</div></div>
+    <div class="stat"><div class="n" style="color:var(--p2)">4</div><div class="l">P2 死代码</div></div>
+    <div class="stat"><div class="n" style="color:var(--p3)">1</div><div class="l">P3 测试缺口</div></div>
+  </div>
+
+  <h2 class="sec">P0 · 真实功能性 Bug</h2>
+
+  <div class="item p0" style="border-left-color:var(--ok)">
+    <span class="tag" style="background:rgba(63,208,138,.16);color:var(--ok)">已修复</span><h3>全局快捷键：已实现并接线（原为"假功能"）</h3>
+    <div class="body">
+      <p>原问题：设置里有开关 + 录制框，但 <code>registerHotkey()</code> 只有一行 <code>print()</code>，<code>handleHotkey()</code>/<code>.shared</code> 全项目从未被调用——用户开开关、按键后什么都不会发生。</p>
+      <p><b>本次改动（采用方案 ①）：</b></p>
+      <ul>
+        <li>新增 <code>HotKeyCombo</code> 解析器：把 "⌘⌥F" 解析为 Carbon 虚拟键码 + 修饰符掩码，非法组合返回 nil。<span class="loc">KeyboardHandler.swift</span></li>
+        <li>重写 <code>GlobalHotkeyManager</code>：用 <code>RegisterEventHotKey</code>（无需辅助功能权限）+ Carbon 事件回调，按下时跳回主线程调用 <code>handleHotkey()</code> → <code>startFocus()</code>。</li>
+        <li>把设置里没法用的自由文本框换成真正的 <code>HotkeyRecorderField</code> 录制控件。<span class="loc">GeneralSettingsView.swift</span></li>
+        <li>接线：<code>AppDelegate</code> 启动时注册；<code>useGlobalHotkey</code>/<code>hotkeyCombo</code> 变更时经 <code>applyHotkey()</code> 重注册；<code>resetAll()</code> 显式注销。</li>
+        <li>新增 3 个解析器纯逻辑单测（CI 可验证）。</li>
+      </ul>
+      <div class="rec">⚠️ <b>验证边界：</b>我在 Windows 上只能保证代码正确性，CI（macOS runner）可验证<b>编译 + 单测</b>。但热键<b>运行时</b>能否真正触发，需你在 Mac 上实测一次。</div>
+    </div>
+  </div>
+
+  <h2 class="sec">P1 · 健壮性 / 隐式耦合</h2>
+
+  <div class="item p1">
+    <span class="tag p1">P1</span><h3>ODR 下载进度依赖「soundId == 文件名去掉 .aac」的隐式约定</h3>
+    <div class="body">
+      <p><code>URLSessionDataDelegate</code> 的三个回调都通过 <code>url.lastPathComponent.replacingOccurrences(of:".aac")</code> 反推 soundId <span class="loc">ODRManager.swift:170,180,194</span>。今天目录里所有 <code>id == fileName</code> 去后缀，能跑通；但这是脆弱耦合：未来若某个音效 <code>id ≠ fileName</code>，进度条与完成回调会<b>静默失效</b>（continuation 永不 resume → 下载 await 卡死）。</p>
+      <div class="rec"><b>建议：</b>用 <code>task.taskIdentifier → soundId</code> 的映射表显式传递，移除字符串反推。改动小、可纯靠代码审查验证。属于"加固"而非"修 bug"，可选。</div>
+    </div>
+  </div>
+
+  <div class="item p1">
+    <span class="tag p1">P1</span><h3>专注中切换预设，统计记录的仍是开始时的音效组合</h3>
+    <div class="body">
+      <p><code>applyPreset()</code> 在会话进行中会停止并重启音效 <span class="loc">PopoverContentView.swift:292</span>，但 <code>FocusStateManager.currentSessionSoundIds</code> 在 <code>startFocus()</code> 时即捕获、结束时才写入统计。中途换预设不会更新，统计里记的是旧音效。</p>
+      <div class="rec"><b>建议：</b>影响很小（仅统计字段精度），可记为已知行为，或在 <code>applyPreset</code> 中同步更新会话音效。优先级低。</div>
+    </div>
+  </div>
+
+  <h2 class="sec">P2 · 死代码（均为既有代码，建议你确认后再清理）</h2>
+
+  <div class="item p2">
+    <span class="tag p2">P2</span><h3>四处未引用的代码</h3>
+    <div class="body">
+      <table>
+        <tr><th>符号</th><th>位置</th><th>说明</th></tr>
+        <tr><td><code>KeyboardNavigation</code> 枚举</td><td>KeyboardHandler.swift:6</td><td>定义了一套快捷键 keyCode，全项目无引用。</td></tr>
+        <tr><td><code>onPopoverKeyPress</code> / <code>KeyEventView</code> / <code>KeyCaptureView</code></td><td>KeyboardHandler.swift:82-114</td><td>面板实际用的是 <code>PopoverContentView</code> 内联的 <code>NSEvent.addLocalMonitorForEvents</code>，这套 View 扩展从未被调用。</td></tr>
+        <tr><td><code>Sound.volume</code> 字段</td><td>Models.swift:15</td><td>只在 init 里赋值，从无读取处（音量统一由 <code>panel.soundVolumes</code> / <code>AudioManager.volumeControls</code> 管理）。</td></tr>
+        <tr><td><code>FocusState.ready</code> case</td><td>Models.swift:233</td><td>只在 switch 里被匹配，从未被构造。</td></tr>
+      </table>
+      <p style="margin-top:12px">⚠️ <code>KeyboardHandler.swift</code> 整个文件除 <code>GlobalHotkeyManager</code>（见 P0）外基本是死代码。</p>
+      <div class="rec"><b>建议：</b>按本项目 Karpathy 准则「注意到无关死代码，提一嘴但不要删」，我先列出不擅删。你确认后我可一次性清理（清理后需 CI 编译验证）。<code>Sound.volume</code> 虽参与 <code>Codable</code>，但 Sound 从未被序列化持久化，删除安全。</div>
+    </div>
+  </div>
+
+  <h2 class="sec">P3 · 测试覆盖缺口</h2>
+
+  <div class="item p3">
+    <span class="tag p3">P3</span><h3>纯数据模型覆盖好，但有状态的 Manager 异步逻辑零覆盖</h3>
+    <div class="body">
+      <p>现有 18 个测试集中在 Sound 目录、Soundscape、FocusSession Codable、计时器进度钳制等<b>纯函数/模型</b>层，扎实。但以下含真实逻辑分支的部分无测试：</p>
+      <ul>
+        <li><code>FocusStateManager.recordFocusSession</code> 的时长换算（完成 vs 中断、向上取整 <code>(s+59)/60</code>、<code>min(elapsed, planned)</code>）——纯逻辑，易测且值得测。</li>
+        <li><code>FocusStateManager.normalizedSoundIds</code>（去重 + 过滤非法 id + 截断至 3）——纯逻辑，易测。</li>
+        <li><code>StatisticsManager</code> 的今日/本周/本月聚合与 30 天热力图。</li>
+        <li><code>UserFocusStatus.statusText/emoji/expiration</code>。</li>
+      </ul>
+      <div class="rec"><b>建议：</b>优先补 <code>normalizedSoundIds</code> 与 <code>recordFocusSession</code> 的纯逻辑测试——收益高、无需 mock。我可以写，但需 CI（macOS）跑通后才算验证完成。</div>
+    </div>
+  </div>
+
+  <h2 class="sec">已确认为「有意为之」的设计（非问题）</h2>
+  <p class="ok-note">
+    审计中以下点初看可疑，实为正确设计，<b>不应改动</b>：<br>
+    • <b>Esc 永远只关面板、不结束专注</b>——防误触丢失会话（CLAUDE.md 明示）。<br>
+    • <b>计时器用墙钟 <code>endDate</code> 而非递减计数</b>——消除长会话漂移。<br>
+    • <b>IM 授权失败静默跳过</b>——不打断心流。<br>
+    • <b><code>stopSound</code> 立即清状态 + <code>fadingOutSoundIds</code> 防重排</b>——引擎重启期间正确。<br>
+    • <b>OAuth 经 Cloudflare Worker 代理（方法名 <code>performOAuthPKCE</code> 但非本地 PKCE）</b>——设计如此。<br>
+    • <b>菜单栏全局点击监听 + <code>.transient</code> popover</b>——略冗余但无害。
+  </p>
+
+  <h2 class="sec">下一步</h2>
+  <p class="ok-note">
+    <b>P0 已实现</b>，待你 ① 在 Mac 上跑通 CI（验证编译 + 单测），② 实机测一次热键触发。<br>
+    剩余可选项：<b>P2 死代码清理</b>（需你确认后我一次性删，含 <code>KeyboardNavigation</code>、<code>onPopoverKeyPress</code> 等）、<b>P3 继续补纯逻辑测试</b>（<code>normalizedSoundIds</code>/<code>recordFocusSession</code> 需把 <code>private</code> 放宽为 <code>internal</code> 才能测）、<b>P1 ODR 加固</b>。<br>
+    我未自动提交/推送（遵循本项目"用户要求时才提交"）。需要我建分支推上去触发 CI 验证吗？
+  </p>
+</div>
