@@ -1,0 +1,105 @@
+<title>FocusFlow 系统性审查报告</title>
+<style>
+  :root{
+    --bg:#0e1216;--card:#171f26;--line:#28333d;--ink:#e9eff4;--mut:#92a2ad;
+    --ok:#3fd08a;--warn:#ffb13c;--bad:#ff5c5c;--info:#5cc8ff;--acc:#5cc8ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,"PingFang SC","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:48px 24px 80px}
+  h1{font-size:30px;margin:0 0 4px;letter-spacing:-.5px}
+  .sub{color:var(--mut);margin:0 0 26px}
+  .verdict{background:linear-gradient(135deg,#13211b,#0e1216);border:1px solid #1f3a2c;border-radius:14px;padding:20px 22px;margin:0 0 30px}
+  .verdict b{color:var(--ok)}
+  .score{display:flex;align-items:center;gap:18px;margin:0 0 30px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 24px}
+  .score .big{font-size:46px;font-weight:800;line-height:1;color:var(--ok)}
+  .score .big small{font-size:18px;color:var(--mut);font-weight:600}
+  .score .desc{color:var(--mut);font-size:14px}
+  h2.sec{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin:38px 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap}
+  .pass{background:rgba(63,208,138,.15);color:var(--ok)}
+  .warnp{background:rgba(255,177,60,.15);color:var(--warn)}
+  .badp{background:rgba(255,92,92,.15);color:var(--bad)}
+  .item{background:var(--card);border:1px solid var(--line);border-left-width:4px;border-radius:12px;padding:16px 20px;margin:0 0 14px}
+  .item.warn{border-left-color:var(--warn)} .item.bad{border-left-color:var(--bad)} .item.info{border-left-color:var(--info)}
+  .item h3{font-size:16px;margin:0 0 8px}
+  .item p{margin:7px 0}
+  .loc{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--acc);background:#0b0f13;border:1px solid var(--line);border-radius:6px;padding:1px 7px}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:13px;background:#0b0f13;border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  .rec{margin-top:10px;padding:10px 13px;background:#0b0f13;border:1px solid var(--line);border-radius:8px;font-size:13.5px}
+  .rec b{color:var(--ok)}
+  ul{margin:6px 0;padding-left:20px}li{margin:4px 0}
+  .mut{color:var(--mut)}
+  .tablewrap{overflow-x:auto}
+</style>
+
+<div class="wrap">
+  <h1>FocusFlow 系统性审查报告</h1>
+  <p class="sub">全栈审计：代码质量 · 并发 · 安全 · CI/CD · 构建 · 配置 · 测试 · 资产 · 文档 · 2026-06-22</p>
+
+  <div class="verdict">
+    <b>总评：健康、接近生产就绪。</b> 架构合规零违规，无硬编码密钥，CI/构建脚本规范。上一轮"优化"已修掉唯一的功能性 bug。本次系统性审查未发现严重缺陷，问题集中在<b>少量安全加固</b>与<b>一个音效资产 bug</b>。
+  </div>
+
+  <div class="score">
+    <div><div class="big">8.7<small>/10</small></div></div>
+    <div class="desc">扣分项：1 个音效资产 bug（clock_tick）、2 处安全加固（CI 密钥内联 / Keychain 明文回退）、Manager 异步逻辑测试覆盖仍有缺口。无架构债、无安全泄露、无死代码残留。</div>
+  </div>
+
+  <h2 class="sec">维度评分卡</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>维度</th><th>结论</th><th>依据</th></tr>
+    <tr><td>架构合规</td><td><span class="pill pass">PASS</span></td><td>全量 grep 验证：<b>无 <code>@StateObject</code></b>（符合铁律）、单例 + <code>@MainActor</code> 一致、<code>@ObservedObject</code> 统一。</td></tr>
+    <tr><td>类型/内存安全</td><td><span class="pill pass">PASS</span></td><td>无 <code>try!</code>/<code>as!</code>/强解包滥用；仅 1 个标准 <code>fatalError(init coder)</code>。</td></tr>
+    <tr><td>并发 / Actor 隔离</td><td><span class="pill pass">PASS</span></td><td>Carbon C 回调跨 actor 用文件级常量 + <code>Task{@MainActor}</code> 桥接；ODR delegate 全部回主线程。</td></tr>
+    <tr><td>安全</td><td><span class="pill warnp">注意</span></td><td>无硬编码密钥；OAuth Token 存 Keychain。两处加固见下。</td></tr>
+    <tr><td>CI / CD</td><td><span class="pill pass">PASS</span></td><td>3 个 workflow 结构清晰，secret 走 GitHub Environment，临时 keychain 用后即删。</td></tr>
+    <tr><td>构建 / 打包脚本</td><td><span class="pill pass">PASS</span></td><td>5 个脚本均 <code>set -euo pipefail</code>，输入校验、<code>chmod 600</code> 密钥。</td></tr>
+    <tr><td>Entitlements / Info.plist</td><td><span class="pill pass">PASS</span></td><td>App Sandbox + network.client + calendars；<code>NSCalendarsUsageDescription</code> 齐全；<code>LSUIElement</code> 正确。</td></tr>
+    <tr><td>测试覆盖</td><td><span class="pill warnp">部分</span></td><td>模型/纯逻辑覆盖好（含本轮新增 8 个）；Manager 的异步副作用路径仍无测试。</td></tr>
+    <tr><td>音效资产</td><td><span class="pill badp">1 BUG</span></td><td>24 个数量正确；<code>clock_tick</code> 时长错误（见下）。</td></tr>
+    <tr><td>文档</td><td><span class="pill pass">PASS</span></td><td>CLAUDE.md/AGENTS.md 详尽（轻微重复）。</td></tr>
+  </table>
+  </div>
+
+  <h2 class="sec">需处理项</h2>
+
+  <div class="item info" style="border-left-color:var(--ok)">
+    <h3>✅ 音效资产 bug 已修：clock_tick.aac 之前实际只有 ~30ms</h3>
+    <p><span class="loc">ci_generate_sounds.sh:50 / generate_sounds.sh:80</span> 旧 <code>sine d=0.03</code> 源在 30ms EOF，<code>-t 60</code> 拉不长 → 成品 ~30ms，循环成蜂鸣。</p>
+    <p><b>修复：</b>改为周期脉冲 <code>aevalsrc=0.25*sin(2*PI*1000*t)*lt(mod(t,1),0.03):d=120:s=44100</code>（每秒一次 30ms 滴答）。<b>本机 ffmpeg 实测确认</b>：产出 60.02s、整 60 个起音；两脚本 <code>bash -n</code> 通过。</p>
+    <div class="rec">⚠️ 脚本已修，但用户侧生效还需<b>你触发一次重灌</b>：打 <code>sounds-v2</code> tag 跑 <code>upload-sounds.yml</code>，再更新 <span class="loc">Models.swift:54</span> 的 tag 名。上传是对外发布动作，未擅自触发。</div>
+  </div>
+
+  <div class="item info" style="border-left-color:var(--ok)">
+    <h3>✅ CI 密钥内联已修</h3>
+    <p><span class="loc">app-store-submit.yml</span> 把 <code>APP_STORE_CONNECT_API_KEY_BASE64</code> 从 <code>run:</code> 内联改为经 step <code>env:</code> 注入、脚本用 <code>$VAR</code> 引用，与其余证书/密码一致。</p>
+  </div>
+
+  <div class="item warn">
+    <h3>🟠 安全：Keychain 失败时 OAuth Token 明文落入 UserDefaults</h3>
+    <p><span class="loc">IntegrationManager.swift KeychainManager.save/get</span> 在 <code>SecItemAdd</code> 失败时回退到 <code>UserDefaults</code>（明文 plist）存放 Token。已有"成功即清除回退"的缓解，但失败窗口内 Token 以明文存在。</p>
+    <div class="rec"><b>建议：</b>沙盒生产环境 Keychain 几乎不会失败，风险低。可考虑回退时改存内存（会话级）或直接放弃同步并提示，而非落盘。优先级中低，属设计权衡（CLAUDE.md 已记录其为模拟器兜底）。</div>
+  </div>
+
+  <h2 class="sec">观察项（非缺陷，供参考）</h2>
+  <ul class="mut">
+    <li><b>OAuth 为代理全托管</b>：客户端 <code>performOAuthPKCE</code> 不持有 PKCE verifier，握手全在 Cloudflare Worker。这是有意设计（CLAUDE.md 明示），意味着代理被完全信任——属架构选择，非漏洞。</li>
+    <li><b>合成音效偏简陋</b>：<code>piano</code>/<code>choir</code>/<code>wind_chime</code> 等"音乐"类是纯正弦音（如 piano=440Hz 正弦）。对白噪声 App 尚可，但作为差异化卖点偏弱——产品/资产决策，非代码问题。</li>
+    <li><b>altool 已被 Apple 标记弃用</b>：<code>submit_app_store.sh</code> 用 <code>xcrun altool --upload-app</code>，仍可用，未来宜迁移到 <code>notarytool</code>/Transporter。</li>
+    <li><b>文档轻微重复</b>：<code>CLAUDE.md</code> 与 <code>AGENTS.md</code> 内容大面积重叠，维护时易不同步。</li>
+    <li><b>Manager 异步测试缺口</b>（延续上轮 P3）：<code>StatisticsManager</code> 聚合、<code>FocusStateManager</code> 会话序列仍无测试。</li>
+  </ul>
+
+  <h2 class="sec">已复核确认健康的部分</h2>
+  <p class="mut">音频引擎重启协议、会话 UUID 竞态防护、墙钟计时、Keychain→UserDefaults 自动清理、NSStatusItem 清理、Esc 仅关面板、设置窗口去重、CI 三件套（build/test → package → release）、打包脚本 ad-hoc 签名、24 个音效目录与测试一致——均符合设计、无需改动。</p>
+
+  <h2 class="sec">下一步</h2>
+  <p class="mut">本轮已修：<b>clock_tick 生成式</b>（ffmpeg 实测验证）+ <b>CI 密钥内联</b>。<br>
+  仍需你决策：<b>① 触发 sounds-v2 重灌</b>让 clock_tick 对用户生效（对外发布）、<b>② Keychain 回退策略</b>、<b>③ 补 Manager 异步测试</b>、<b>④ 重做"音乐"类合成音</b>（产品资产）。</p>
+</div>
