@@ -188,6 +188,66 @@ final class FocusFlowTests: XCTestCase {
         XCTAssertTrue(decoded.wasCompleted)
     }
 
+    // MARK: - Statistics Aggregation (pure, deterministic)
+
+    /// UTC, Monday-first calendar so week/day bucketing is timezone-independent.
+    private func fixedCalendar() -> Calendar {
+        var cal = Calendar(identifier: .gregorian)
+        cal.timeZone = TimeZone(identifier: "UTC")!
+        cal.firstWeekday = 2 // Monday
+        return cal
+    }
+
+    private func makeDate(_ cal: Calendar, _ y: Int, _ mo: Int, _ d: Int, _ h: Int = 12) -> Date {
+        cal.date(from: DateComponents(year: y, month: mo, day: d, hour: h))!
+    }
+
+    func testStatisticsTotalsBucketsByTodayWeekMonth() {
+        let cal = fixedCalendar()
+        let now = makeDate(cal, 2026, 6, 17) // Wednesday
+        let sessions = [
+            FocusSession(startTime: makeDate(cal, 2026, 6, 17, 9), durationMinutes: 25),  // today
+            FocusSession(startTime: makeDate(cal, 2026, 6, 17, 14), durationMinutes: 50), // today
+            FocusSession(startTime: makeDate(cal, 2026, 6, 15, 10), durationMinutes: 30), // Mon, this week+month
+            FocusSession(startTime: makeDate(cal, 2026, 6, 1, 10), durationMinutes: 40),  // this month, before this week
+            FocusSession(startTime: makeDate(cal, 2026, 5, 20, 10), durationMinutes: 100) // last month
+        ]
+        let t = StatisticsManager.totals(for: sessions, now: now, calendar: cal)
+        XCTAssertEqual(t.today, 75)  // 25 + 50
+        XCTAssertEqual(t.week, 105)  // today 75 + Mon 30
+        XCTAssertEqual(t.month, 145) // 75 + 30 + 40
+    }
+
+    func testStatisticsHeatmapBucketsByDay() {
+        let cal = fixedCalendar()
+        let now = makeDate(cal, 2026, 6, 17)
+        let sessions = [
+            FocusSession(startTime: makeDate(cal, 2026, 6, 17, 9), durationMinutes: 25),
+            FocusSession(startTime: makeDate(cal, 2026, 6, 17, 14), durationMinutes: 50),
+            FocusSession(startTime: makeDate(cal, 2026, 6, 16, 10), durationMinutes: 30),
+            FocusSession(startTime: makeDate(cal, 2026, 6, 10, 10), durationMinutes: 99) // outside 3-day window
+        ]
+        let map = StatisticsManager.heatmap(for: sessions, days: 3, now: now, calendar: cal)
+        XCTAssertEqual(map.count, 3)
+        XCTAssertEqual(map[cal.startOfDay(for: makeDate(cal, 2026, 6, 17))], 75)
+        XCTAssertEqual(map[cal.startOfDay(for: makeDate(cal, 2026, 6, 16))], 30)
+        XCTAssertEqual(map[cal.startOfDay(for: makeDate(cal, 2026, 6, 15))], 0)
+    }
+
+    // MARK: - User Focus Status
+
+    func testUserFocusStatusFormatting() {
+        XCTAssertEqual(UserFocusStatus.available.statusText, "")
+        XCTAssertEqual(UserFocusStatus.available.emoji, "")
+        XCTAssertNil(UserFocusStatus.available.expiration)
+
+        let until = Date(timeIntervalSince1970: 1_700_000_000)
+        let focusing = UserFocusStatus.focusing(until: until)
+        XCTAssertEqual(focusing.emoji, "headphones")
+        XCTAssertEqual(focusing.expiration, until)
+        XCTAssertFalse(focusing.statusText.isEmpty)
+    }
+
     // MARK: - Global Hotkey Combo Parsing
 
     func testHotKeyComboRejectsInvalidStrings() {

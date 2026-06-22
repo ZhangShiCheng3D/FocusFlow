@@ -179,40 +179,63 @@ final class StatisticsManager: ObservableObject {
     }
 
     private func recalculateStats() {
-        let calendar = Calendar.current
-        let now = Date()
+        let totals = Self.totals(for: sessions, now: Date())
+        todayTotalMinutes = totals.today
+        weekTotalMinutes = totals.week
+        monthTotalMinutes = totals.month
+    }
 
-        todayTotalMinutes = sessions
+    /// Pure aggregation of session minutes into today / this-week / this-month
+    /// buckets. `now` and `calendar` are injected so this is deterministic and
+    /// unit-testable independent of the wall clock and host time zone.
+    nonisolated static func totals(
+        for sessions: [FocusSession],
+        now: Date,
+        calendar: Calendar = .current
+    ) -> (today: Int, week: Int, month: Int) {
+        let today = sessions
             .filter { calendar.isDate($0.startTime, inSameDayAs: now) }
             .reduce(0) { $0 + $1.durationMinutes }
 
+        var week = 0
         if let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: now)) {
-            weekTotalMinutes = sessions
+            week = sessions
                 .filter { $0.startTime >= weekStart }
                 .reduce(0) { $0 + $1.durationMinutes }
         }
 
+        var month = 0
         if let monthStart = calendar.date(from: calendar.dateComponents([.year, .month], from: now)) {
-            monthTotalMinutes = sessions
+            month = sessions
                 .filter { $0.startTime >= monthStart }
                 .reduce(0) { $0 + $1.durationMinutes }
         }
+
+        return (today, week, month)
     }
 
     // MARK: - Heatmap Data
 
     func sessionsForLastDays(_ days: Int) -> [Date: Int] {
-        let calendar = Calendar.current
-        let now = Date()
+        Self.heatmap(for: sessions, days: days, now: Date())
+    }
+
+    /// Pure per-day minute totals for the last `days` days (keyed by start-of-day).
+    /// `now`/`calendar` injected for deterministic testing.
+    nonisolated static func heatmap(
+        for sessions: [FocusSession],
+        days: Int,
+        now: Date,
+        calendar: Calendar = .current
+    ) -> [Date: Int] {
         var result: [Date: Int] = [:]
 
         for dayOffset in 0..<days {
             guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: now) else { continue }
             let dayStart = calendar.startOfDay(for: date)
-            let dayMinutes = sessions
+            result[dayStart] = sessions
                 .filter { calendar.isDate($0.startTime, inSameDayAs: date) }
                 .reduce(0) { $0 + $1.durationMinutes }
-            result[dayStart] = dayMinutes
         }
 
         return result
