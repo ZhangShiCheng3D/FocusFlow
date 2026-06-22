@@ -381,7 +381,7 @@ struct PopoverContentView: View {
 
     private var focusButtonIcon: String {
         switch focusManager.focusState {
-        case .idle, .ready: return "play.fill"
+        case .idle: return "play.fill"
         case .focusing: return "pause.fill"
         case .paused: return "play.fill"
         }
@@ -389,7 +389,7 @@ struct PopoverContentView: View {
 
     private var focusButtonLabel: String {
         switch focusManager.focusState {
-        case .idle, .ready: return "开始专注"
+        case .idle: return "开始专注"
         case .focusing: return "暂停"
         case .paused: return "继续专注"
         }
@@ -398,7 +398,6 @@ struct PopoverContentView: View {
     private var focusButtonAccessibilityLabel: String {
         switch focusManager.focusState {
         case .idle: return "开始 \(panel.selectedDuration) 分钟专注"
-        case .ready: return "开始 \(panel.selectedDuration) 分钟专注"
         case .focusing: return "暂停专注，剩余 \(timerManager.remainingFormatted)"
         case .paused: return "继续专注，剩余 \(timerManager.remainingFormatted)"
         }
@@ -406,7 +405,7 @@ struct PopoverContentView: View {
 
     private func handleFocusButton() {
         switch focusManager.focusState {
-        case .idle, .ready:
+        case .idle:
             let soundIds = Array(panel.selectedSounds)
             UserDefaults.standard.set(soundIds, forKey: "lastSoundIds")
             Task {
