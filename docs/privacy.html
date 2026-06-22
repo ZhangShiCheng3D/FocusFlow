@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FocusFlow 隐私政策 / Privacy Policy</title>
+<style>
+  body{max-width:760px;margin:0 auto;padding:48px 22px 80px;background:#fff;color:#1c2530;
+    font:16px/1.7 -apple-system,"PingFang SC","Segoe UI",system-ui,sans-serif}
+  h1{font-size:28px;margin:0 0 4px}
+  .upd{color:#6b7785;margin:0 0 28px}
+  h2{font-size:19px;margin:32px 0 8px;border-bottom:1px solid #e6eaef;padding-bottom:6px}
+  p,li{color:#2c3744}
+  .tldr{background:#f1f7f3;border:1px solid #cfe6da;border-radius:10px;padding:14px 18px;margin:18px 0}
+  code{background:#f3f5f7;border:1px solid #e6eaef;border-radius:5px;padding:1px 6px;font-size:14px}
+  a{color:#1a7f5a}
+  .en{color:#6b7785;font-size:14px}
+</style>
+</head>
+<body>
+  <h1>FocusFlow 隐私政策</h1>
+  <p class="upd">最后更新：2026-06-22 · Privacy Policy</p>
+
+  <div class="tldr">
+    <b>一句话：</b>FocusFlow 是一款本地优先（Local-First）的菜单栏应用。<b>没有服务器后端、没有账号系统、没有任何分析或追踪 SDK。</b>你的专注数据只存在你自己的 Mac 上，我们（开发者）收集不到、也看不到。
+  </div>
+
+  <h2>1. 我们不收集什么</h2>
+  <p>FocusFlow 不设自有服务器，不存储任何用户数据于云端。我们不收集你的姓名、邮箱、设备标识、使用行为或专注记录。应用内<b>无任何第三方分析、广告或崩溃追踪 SDK</b>。</p>
+
+  <h2>2. 数据存在哪里</h2>
+  <ul>
+    <li><b>专注记录与偏好设置</b>：以本地形式保存在你 Mac 的应用沙盒内（系统 UserDefaults），<b>仅存于本机</b>，不上传。</li>
+    <li><b>第三方授权令牌</b>：若你主动连接 Slack / Discord / Microsoft Teams，对应的 OAuth 令牌保存在你 Mac 的<b>系统钥匙串（Keychain）</b>，仅本机可用。</li>
+    <li><b>音效文件</b>：付费音效按需从公开的 GitHub Releases 下载到本地缓存，下载请求不携带任何个人信息。</li>
+  </ul>
+
+  <h2>3. 系统权限的用途</h2>
+  <ul>
+    <li><b>日历（仅写入）</b>：当你开启"自动写入日历 Busy 事件"时，应用在专注时段创建一个标记为忙碌的日程，结束后自动移除。我们<b>只写入，不读取</b>你的任何日程详情。</li>
+    <li><b>网络</b>：用于下载音效、以及（当你启用时）OAuth 授权与即时通讯状态同步。</li>
+  </ul>
+
+  <h2>4. 即时通讯状态同步（可选功能）</h2>
+  <p>仅当你主动授权并开启该功能时，FocusFlow 才会在你专注期间，向你已授权的平台（Slack / Discord / Teams）发送一条"专注中"状态文本。OAuth 授权握手经由一个 Cloudflare Workers 中转服务完成，该中转服务<b>不长期存储</b>你的令牌；令牌只保存在你本机的钥匙串中。你可随时在设置中断开连接，断开即从钥匙串删除令牌。</p>
+
+  <h2>5. 数据共享与出售</h2>
+  <p>我们不会出售、出租或为广告目的共享你的任何数据。除上述你主动启用的即时通讯同步外，应用不向任何第三方发送你的个人数据。</p>
+
+  <h2>6. 儿童隐私</h2>
+  <p>本应用面向一般用户，不针对 13 岁以下儿童设计，也不有意收集儿童的任何信息。</p>
+
+  <h2>7. 你的控制权</h2>
+  <p>所有数据都在你本机。你可在应用偏好设置中重置全部数据，或直接卸载应用以清除所有本地存储。</p>
+
+  <h2>8. 联系我们</h2>
+  <p>如对本隐私政策有任何疑问，请联系：<br>
+  <code>[在此填写你的联系邮箱]</code></p>
+
+  <p class="en">An English version is available on request. FocusFlow is a local-first menu-bar app with no backend, no accounts, and no analytics/tracking SDKs. Focus data stays on your Mac; OAuth tokens (if you connect Slack/Discord/Teams) live only in your local Keychain. Calendar access is write-only. We do not collect, sell, or share your personal data.</p>
+</body>
+</html>
