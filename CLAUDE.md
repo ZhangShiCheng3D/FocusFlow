@@ -22,22 +22,32 @@ swift run --package-path FocusFlow
 
 # Package app for distribution (ad-hoc signed, outputs dist/FocusFlow.app.zip)
 bash scripts/package_app.sh
+
+# Generate the Xcode app project (App Store / Xcode Cloud path) — macOS only
+brew install xcodegen && xcodegen generate            # → FocusFlow.xcodeproj (gitignored)
+xcodebuild build -project FocusFlow.xcodeproj -scheme FocusFlow \
+  -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO   # what CI's xcode-app-build job runs
 ```
+
+**Two build systems coexist on purpose**: SwiftPM (`Package.swift`, an `.executableTarget`) is the day-to-day build/test path; the App Store needs a real `.app` target, so `project.yml` (XcodeGen) generates `FocusFlow.xcodeproj` with a `type: application` target from the *same* sources/Info.plist/entitlements. The `.xcodeproj` is a build artifact (gitignored) — edit `project.yml`, never the generated project.
 
 ## CI/CD
 
-Two GitHub Actions workflows on `macos-15` runners:
+Three GitHub Actions workflows on `macos-15` runners:
 
 | Workflow | Trigger | What it does |
 |----------|---------|--------------|
-| `macos-ci.yml` | push/PR to main, `v*` tags, manual | Build → test → package .app → upload artifact; creates GitHub Release on `v*` tags |
-| `app-store-submit.yml` | `appstore-v*` tags, manual | Build → test → import certs/profiles → archive → export → optionally upload to App Store Connect |
+| `macos-ci.yml` | push/PR to main, `v*` tags, manual | SwiftPM build+test; **`xcode-app-build` job** verifies the XcodeGen app target compiles (`xcodegen generate` + `xcodebuild build`, unsigned); package .app artifact; GitHub Release on `v*` tags |
+| `app-store-submit.yml` | `appstore-v*` tags, manual | Build+test → import certs/profiles → `xcodegen generate` → archive/export the `.xcodeproj` → optionally upload to App Store Connect |
+| `upload-sounds.yml` | `sounds-v*` tags, manual | ffmpeg-synthesize 24 `.aac` and publish to a release whose tag follows the pushed tag |
 
-**App Store secrets** live in the `app-store` GitHub Environment (certificates, provisioning profile, App Store Connect API key). The `package_app.sh` script uses ad-hoc signing — only suitable for CI artifacts and local smoke testing. Release distribution needs Developer ID signing + notarization.
+**App Store secrets** live in the `app-store` GitHub Environment (certificates, provisioning profile, App Store Connect API key). `package_app.sh` uses ad-hoc signing — only for CI artifacts/local smoke testing. The `app-store-submit.yml` path needs the secrets filled + an Apple account; it has never run end-to-end yet (no account configured).
 
 ## Project Overview
 
-FocusFlow is a **macOS menu bar app** (SwiftUI + AppKit, min macOS 13) that creates a "digital workstation atmosphere" — ambient sound mixer + macOS Focus automation + IM status sync + app blocking + Pomodoro timer. Target users: developers, remote workers, creatives, students.
+FocusFlow is a **macOS menu bar app** (SwiftUI + AppKit, min macOS 13) that creates a "digital workstation atmosphere" — ambient sound mixer + macOS Focus automation + IM status sync + Pomodoro timer. Target users: developers, remote workers, creatives, students.
+
+> **First-version scope (App Store):** FamilyControls app-blocking is intentionally **cut from the shipping UI** (restricted entitlement, was a stub) — the `autoBlockApps` pref + `FocusStateManager.enable/disableAppBlocking` stubs remain in code but no toggle exposes them, and the entitlement is not requested. Global hotkey **is** now implemented (Carbon `RegisterEventHotKey`, see `GlobalHotkeyManager`).
 
 **Architecture**: Single binary, no backend server, no user accounts, Local-First, no analytics SDK.
 
@@ -166,7 +176,9 @@ https://github.com/ZhangShiCheng3D/FocusFlow/releases/download/sounds-v3/{fileNa
 
 ## App Bundle & Signing
 
-`FocusFlow.entitlements` — requires hardened runtime and app sandbox for App Store. `scripts/package_app.sh` handles release packaging locally (ad-hoc signed). App Store submission uses `scripts/submit_app_store.sh` with proper signing identities and provisioning profiles from CI secrets.
+**Bundle ID: `com.zhulei.focusflow`** (the original `com.focusflow.app` was already taken globally). It must stay identical across `Info.plist`, `project.yml`, and the `ExportOptions.plist` provisioning-profile key.
+
+`FocusFlow.entitlements` — hardened runtime + app sandbox for App Store. `scripts/package_app.sh` does local ad-hoc packaging. App Store submission: `scripts/submit_app_store.sh` runs `xcodegen generate` then archives/exports `FocusFlow.xcodeproj` with the `Apple Distribution` cert + `FocusFlow App Store` provisioning profile (name must match `ExportOptions.plist`). Sounds are hosted on GitHub Releases at the tag in `Models.swift` `remoteURL` (currently **sounds-v3**).
 
 ## Test Coverage
 
