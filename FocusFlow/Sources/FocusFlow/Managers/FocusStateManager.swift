@@ -405,7 +405,7 @@ final class FocusStateManager: ObservableObject {
     /// Computes the recorded duration for a session. A completed session records
     /// its full planned length; an interrupted one records elapsed wall-clock time
     /// capped at the planned length. Any non-zero duration rounds up to ≥ 1 minute.
-    static func recordedDuration(
+    nonisolated static func recordedDuration(
         elapsedSeconds: Int,
         plannedSeconds: Int,
         completed: Bool
