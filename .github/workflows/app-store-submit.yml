@@ -65,10 +65,11 @@ jobs:
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
           APP_STORE_CONNECT_API_KEY_PATH: ${{ runner.temp }}/appstore_api_key.p8
         run: |
-          # Write API key
-          echo -n "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode -o "$APP_STORE_CONNECT_API_KEY_PATH"
+          # Write API key (secret read from env, not inlined into the script)
+          echo -n "$APP_STORE_CONNECT_API_KEY_BASE64" | base64 --decode -o "$APP_STORE_CONNECT_API_KEY_PATH"
           chmod 600 "$APP_STORE_CONNECT_API_KEY_PATH"
 
           UPLOAD_FLAG=""

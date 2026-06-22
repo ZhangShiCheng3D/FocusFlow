@@ -47,7 +47,10 @@ echo "━━━ 3/6 Urban ━━━"
 gen "cafe.aac"          120 "anoisesrc=d=120:c=pink:r=44100:a=0.12, lowpass=f=2000, volume=0.25"
 gen "library.aac"       120 "anoisesrc=d=120:c=brown:r=44100:a=0.06, lowpass=f=800, volume=0.15"
 gen "keyboard.aac"       60 "anoisesrc=d=60:c=white:r=44100:a=0.15, highpass=f=600, lowpass=f=4000, volume=0.3"
-gen "clock_tick.aac"     60 "sine=f=1000:r=44100:d=0.03, volume=0.25"
+# Periodic 30ms pulse once per second — a real tick. A short `sine d=0.03`
+# source EOFs at 30ms and `-t` cannot extend it, so the old version produced
+# a ~0.03s file that looped into a buzz instead of a clock tick.
+gen "clock_tick.aac"     60 "aevalsrc=0.25*sin(2*PI*1000*t)*lt(mod(t\,1)\,0.03):d=120:s=44100"
 
 echo "━━━ 4/6 White Noise Variants ━━━"
 gen "pink_noise.aac"    120 "anoisesrc=d=120:c=pink:r=44100:a=0.25"
