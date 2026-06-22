@@ -151,14 +151,14 @@ Defined as `SoundCatalog.allSounds` (static `[Sound]`, 24 sounds). Free tier: wh
 
 Pro sound files (.aac, 24 total) are served from **GitHub Releases** — zero cost, no bank card needed.
 
-**Download URL** (`Models.swift:54`):
+**Download URL** (`Models.swift`):
 ```
-https://github.com/ZhangShiCheng3D/FocusFlow/releases/download/sounds-v1/{fileName}
+https://github.com/ZhangShiCheng3D/FocusFlow/releases/download/sounds-v2/{fileName}
 ```
 
-**CI upload**: `.github/workflows/upload-sounds.yml` triggers on `sounds-v*` tags or manual dispatch. Uses `scripts/ci_generate_sounds.sh` (ffmpeg synthesis on macOS runner) → uploads all 24 .aac files as release assets.
+**CI upload**: `.github/workflows/upload-sounds.yml` triggers on `sounds-v*` tags or manual dispatch. Uses `scripts/ci_generate_sounds.sh` (ffmpeg synthesis on macOS runner) → uploads all 24 .aac files as release assets. The release `tag_name` follows the pushed tag, so each `sounds-v*` tag publishes its own release.
 
-**To regenerate sounds**: push a new tag like `sounds-v2`, or manually trigger `upload-sounds.yml` from the Actions tab. Then update the tag name in `Models.swift:54`.
+**To regenerate sounds**: push a new tag like `sounds-v3`, which both generates the assets and creates the matching release. Then update the tag name in `Models.swift` (`remoteURL`).
 
 **Local generation** (Mac only): `bash scripts/generate_sounds.sh` requires `brew install ffmpeg`.
 

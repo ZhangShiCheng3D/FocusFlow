@@ -48,7 +48,7 @@ struct Sound: Identifiable, Codable, Equatable, Hashable {
     }
 
     var remoteURL: URL? {
-        URL(string: "https://github.com/ZhangShiCheng3D/FocusFlow/releases/download/sounds-v1/\(fileName)")
+        URL(string: "https://github.com/ZhangShiCheng3D/FocusFlow/releases/download/sounds-v2/\(fileName)")
     }
 
     func hash(into hasher: inout Hasher) { hasher.combine(id) }
