@@ -1,0 +1,68 @@
+# XcodeGen spec — generates FocusFlow.xcodeproj (a real macOS .app target)
+# from the SwiftPM sources, so the project is App Store / Xcode Cloud buildable.
+#
+# Generate locally:  brew install xcodegen && xcodegen generate
+# The generated FocusFlow.xcodeproj is a build artifact (gitignored).
+#
+# NOTE: authored on Windows and verified only via `xcodebuild build` on the
+# macOS CI runner — iterate on a Mac if Xcode surfaces project-level issues.
+
+name: FocusFlow
+options:
+  bundleIdPrefix: com.focusflow
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    PRODUCT_BUNDLE_IDENTIFIER: com.focusflow.app
+    DEVELOPMENT_TEAM: $(DEVELOPMENT_TEAM)
+
+targets:
+  FocusFlow:
+    type: application
+    platform: macOS
+    sources:
+      - path: FocusFlow/Sources/FocusFlow
+        excludes:
+          - "FocusFlow.entitlements"
+          - "Resources/Info.plist"
+    settings:
+      base:
+        PRODUCT_NAME: FocusFlow
+        PRODUCT_BUNDLE_IDENTIFIER: com.focusflow.app
+        INFOPLIST_FILE: FocusFlow/Sources/FocusFlow/Resources/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: FocusFlow/Sources/FocusFlow/FocusFlow.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        COMBINE_HIDPI_IMAGES: YES
+    dependencies:
+      - sdk: AVFoundation.framework
+      - sdk: EventKit.framework
+      - sdk: ServiceManagement.framework
+      - sdk: Security.framework
+      - sdk: Carbon.framework
+
+  FocusFlowTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - FocusFlow/Tests
+    dependencies:
+      - target: FocusFlow
+
+schemes:
+  FocusFlow:
+    build:
+      targets:
+        FocusFlow: all
+        FocusFlowTests: [test]
+    test:
+      targets:
+        - FocusFlowTests
+    archive:
+      config: Release

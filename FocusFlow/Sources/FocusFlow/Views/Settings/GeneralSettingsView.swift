@@ -94,16 +94,6 @@ struct GeneralSettingsView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 8) {
-                        Toggle("自动阻断干扰应用 (App Store 版)", isOn: $prefs.autoBlockApps)
-                            .accessibilityHint("App Store 版获得授权后，可在专注期间屏蔽指定应用和网站")
-
-                        Text("当前构建会优雅跳过；启用 FamilyControls 后不上传使用数据")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                            .padding(.leading, 20)
-                    }
-
-                    VStack(alignment: .leading, spacing: 8) {
                         Toggle("自动写入日历 Busy 事件", isOn: $prefs.autoSyncCalendar)
                             .accessibilityHint("专注时段在系统日历中标记为忙碌")
 
