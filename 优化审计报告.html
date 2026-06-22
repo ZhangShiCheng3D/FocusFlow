@@ -59,9 +59,9 @@
 
   <div class="grid">
     <div class="stat"><div class="n" style="color:var(--ok)">1 ✓</div><div class="l">P0 已修复</div></div>
-    <div class="stat"><div class="n" style="color:var(--p1)">2</div><div class="l">P1 健壮性</div></div>
-    <div class="stat"><div class="n" style="color:var(--p2)">4</div><div class="l">P2 死代码</div></div>
-    <div class="stat"><div class="n" style="color:var(--p3)">1</div><div class="l">P3 测试缺口</div></div>
+    <div class="stat"><div class="n" style="color:var(--ok)">1 ✓</div><div class="l">P1 已加固</div></div>
+    <div class="stat"><div class="n" style="color:var(--ok)">4 ✓</div><div class="l">P2 已清理</div></div>
+    <div class="stat"><div class="n" style="color:var(--ok)">+7 ✓</div><div class="l">新增单测</div></div>
   </div>
 
   <h2 class="sec">P0 · 真实功能性 Bug</h2>
@@ -144,10 +144,13 @@
     • <b>菜单栏全局点击监听 + <code>.transient</code> popover</b>——略冗余但无害。
   </p>
 
-  <h2 class="sec">下一步</h2>
+  <h2 class="sec">本轮全部完成</h2>
   <p class="ok-note">
-    <b>P0 已实现</b>，待你 ① 在 Mac 上跑通 CI（验证编译 + 单测），② 实机测一次热键触发。<br>
-    剩余可选项：<b>P2 死代码清理</b>（需你确认后我一次性删，含 <code>KeyboardNavigation</code>、<code>onPopoverKeyPress</code> 等）、<b>P3 继续补纯逻辑测试</b>（<code>normalizedSoundIds</code>/<code>recordFocusSession</code> 需把 <code>private</code> 放宽为 <code>internal</code> 才能测）、<b>P1 ODR 加固</b>。<br>
-    我未自动提交/推送（遵循本项目"用户要求时才提交"）。需要我建分支推上去触发 CI 验证吗？
+    P0–P3 全部处理完毕，统一在分支 <code>feat/global-hotkey</code> / PR #1：<br>
+    • <b>P0</b> 全局快捷键已实现（CI 编译+单测已绿）。<br>
+    • <b>P1</b> ODR 进度回调改为 <code>taskIdentifier → soundId</code> 显式映射，移除文件名隐式耦合。<br>
+    • <b>P2</b> 删除 <code>KeyboardNavigation</code>、<code>onPopoverKeyPress</code>/<code>KeyEventView</code>/<code>KeyCaptureView</code>、<code>Sound.volume</code>、<code>FocusState.ready</code>。<br>
+    • <b>P3</b> 抽出纯函数 <code>recordedDuration(...)</code>、放开 <code>normalizedSoundIds</code>，新增 7 个纯逻辑单测。<br>
+    唯一仍需真机确认的：在 Mac 上实测一次全局热键触发。
   </p>
 </div>

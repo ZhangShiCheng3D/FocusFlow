@@ -18,6 +18,10 @@ final class ODRManager: NSObject, ObservableObject {
     private var downloadTasks: [String: Task<Void, Error>] = [:]
     private var accumulatedData: [String: Data] = [:]
     private var expectedLengths: [String: Int64] = [:]
+    /// Maps a URLSessionTask's identifier back to its soundId. The delegate
+    /// callbacks key off this rather than re-deriving the id from the URL's
+    /// filename, so the catalog is free to use ids that differ from filenames.
+    private var taskSoundIds: [Int: String] = [:]
 
     override private init() {
         super.init()
@@ -124,6 +128,7 @@ final class ODRManager: NSObject, ObservableObject {
 
                 let task = session.dataTask(with: remoteURL)
                 downloadDataTasks[sound.id] = task
+                taskSoundIds[task.taskIdentifier] = sound.id
                 task.resume()
             }
         } onCancel: {
@@ -162,23 +167,25 @@ final class ODRManager: NSObject, ObservableObject {
                                 didReceive response: URLResponse,
                                 completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         guard let httpResponse = response as? HTTPURLResponse,
-              httpResponse.statusCode == 200,
-              let url = dataTask.originalRequest?.url?.lastPathComponent else {
+              httpResponse.statusCode == 200 else {
             completionHandler(.cancel)
             return
         }
-        let soundId = url.replacingOccurrences(of: ".aac", with: "")
+        let taskId = dataTask.taskIdentifier
+        let expectedLength = httpResponse.expectedContentLength
         Task { @MainActor in
-            self.expectedLengths[soundId] = httpResponse.expectedContentLength
+            if let soundId = self.taskSoundIds[taskId] {
+                self.expectedLengths[soundId] = expectedLength
+            }
             completionHandler(.allow)
         }
     }
 
     nonisolated func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
                                 didReceive data: Data) {
-        guard let url = dataTask.originalRequest?.url?.lastPathComponent else { return }
-        let soundId = url.replacingOccurrences(of: ".aac", with: "")
+        let taskId = dataTask.taskIdentifier
         Task { @MainActor in
+            guard let soundId = self.taskSoundIds[taskId] else { return }
             self.accumulatedData[soundId]?.append(data)
 
             if let expected = self.expectedLengths[soundId], expected > 0 {
@@ -190,10 +197,10 @@ final class ODRManager: NSObject, ObservableObject {
 
     nonisolated func urlSession(_ session: URLSession, task: URLSessionTask,
                                 didCompleteWithError error: Error?) {
-        guard let url = task.originalRequest?.url?.lastPathComponent else { return }
-        let soundId = url.replacingOccurrences(of: ".aac", with: "")
-
+        let taskId = task.taskIdentifier
         Task { @MainActor in
+            guard let soundId = self.taskSoundIds[taskId] else { return }
+
             if let error = error {
                 self.downloadContinuations[soundId]?.resume(throwing: error)
             } else if let data = self.accumulatedData[soundId], !data.isEmpty {
@@ -202,6 +209,7 @@ final class ODRManager: NSObject, ObservableObject {
                 self.downloadContinuations[soundId]?.resume(throwing: ODRError.downloadFailed)
             }
 
+            self.taskSoundIds.removeValue(forKey: taskId)
             self.resetDownloadState(for: soundId, keepProgress: true)
         }
     }
