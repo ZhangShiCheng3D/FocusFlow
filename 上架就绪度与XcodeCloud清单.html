@@ -44,7 +44,7 @@
     <tr><td>音效资产 (sounds-v3)</td><td><span class="pill ok">就绪</span></td><td>24 个已发布，clock_tick/音乐音色已修。</td></tr>
     <tr><td><b>Xcode App 目标</b></td><td><span class="pill bad">缺失·阻断</span></td><td>仅 <code>.executableTarget</code>。App Store 需 <code>type: application</code> 的 Xcode 目标（bundle/签名/嵌入 Info.plist+entitlements）。</td></tr>
     <tr><td>现有上架管线</td><td><span class="pill bad">未验证·疑似失效</span></td><td><code>submit_app_store.sh</code> 的 <code>xcodebuild archive</code> 基于 SPM 自动 scheme，产不出可上架 .app。从未在真账号跑通。</td></tr>
-    <tr><td>Apple Developer 账号</td><td><span class="pill warn">需你</span></td><td>$99/年；App Store Connect 创建 App 记录 (bundle <code>com.focusflow.app</code>)。</td></tr>
+    <tr><td>Apple Developer 账号</td><td><span class="pill warn">需你</span></td><td>$99/年；App Store Connect 创建 App 记录 (bundle <code>com.zhulei.focusflow</code>)。</td></tr>
     <tr><td>签名证书 / 描述文件</td><td><span class="pill warn">需你</span></td><td>Apple Distribution 证书 + "FocusFlow App Store" 描述文件（GitHub secrets 名已规划好，但值未填）。</td></tr>
     <tr><td>FamilyControls 授权</td><td><span class="pill warn">需申请</span></td><td><code>com.apple.developer.family-controls</code> 是受限授权，需单独向苹果申请；当前 entitlements 未含它（应用阻断仍是 stub）。建议首版**移除该功能宣称**以免拒审。</td></tr>
     <tr><td>免费音效"内置离线"</td><td><span class="pill warn">名不符实</span></td><td>仓库未含任何 .aac，<code>bundleURL</code> 恒为 nil。免费档 3 音其实也走网络下载（sounds-v3 有），并非真正离线内置。首版要么把 3 个 .aac 真正打进 bundle，要么调整文案。</td></tr>
@@ -66,7 +66,7 @@
 
   <div class="step"><h3>Phase 0 · 前置（账号/资产）<span class="who you">需你</span></h3>
     <ol>
-      <li>注册 Apple Developer Program；ASC 创建 App 记录（bundle <code>com.focusflow.app</code>，平台 macOS）。</li>
+      <li>注册 Apple Developer Program；ASC 创建 App 记录（bundle <code>com.zhulei.focusflow</code>，平台 macOS）。</li>
       <li>生成 Apple Distribution 证书 + "FocusFlow App Store" 描述文件；建 App Store Connect API Key (.p8)。</li>
       <li>决定首版是否保留 FamilyControls/IM 同步（受限授权/第三方依赖，建议首版精简以降低拒审）。</li>
     </ol>

@@ -10,7 +10,7 @@
 #       - Store .p8 key file at path set in APP_STORE_CONNECT_API_KEY_PATH
 #   3. Xcode 15+ installed
 #   4. Provisioning profile "FocusFlow App Store" installed in Xcode
-#   5. App record created in App Store Connect (bundle: com.focusflow.app)
+#   5. App record created in App Store Connect (bundle: com.zhulei.focusflow)
 #
 # Usage:
 #   DEVELOPMENT_TEAM="ABCDE12345" ./scripts/submit_app_store.sh
@@ -55,7 +55,7 @@ fi
 echo -e "${GREEN}=== FocusFlow App Store Submission ===${NC}"
 echo ""
 echo "  Team ID:      $DEVELOPMENT_TEAM"
-echo "  Bundle ID:    com.focusflow.app"
+echo "  Bundle ID:    com.zhulei.focusflow"
 echo "  Upload:       $UPLOAD"
 echo ""
 

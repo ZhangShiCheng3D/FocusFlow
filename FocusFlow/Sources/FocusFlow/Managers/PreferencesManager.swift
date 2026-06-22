@@ -101,7 +101,7 @@ final class PreferencesManager: ObservableObject {
     }
 
     func resetAll() {
-        let domain = Bundle.main.bundleIdentifier ?? "com.focusflow.app"
+        let domain = Bundle.main.bundleIdentifier ?? "com.zhulei.focusflow"
         defaults.removePersistentDomain(forName: domain)
 
         // Reset in-memory @Published properties to defaults.
