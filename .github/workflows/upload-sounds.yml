@@ -30,7 +30,9 @@ jobs:
         with:
           name: "FocusFlow Sound Assets"
           body: "Ambient sound files for FocusFlow app. Total 24 .aac files."
-          tag_name: sounds-v1
+          # Follow the pushed tag (e.g. sounds-v2) so each tag publishes its own
+          # release; falls back to sounds-v1 for manual workflow_dispatch runs.
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'sounds-v1' }}
           draft: false
           prerelease: false
           files: sounds-out/*.aac
