@@ -12,7 +12,7 @@
     <string>Apple Distribution</string>
     <key>provisioningProfiles</key>
     <dict>
-        <key>com.focusflow.app</key>
+        <key>com.zhulei.focusflow</key>
         <string>FocusFlow App Store</string>
     </dict>
 </dict>

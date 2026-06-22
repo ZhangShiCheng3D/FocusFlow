@@ -5,7 +5,7 @@
 ### 1. Apple Developer Program
 - [ ] 注册 Apple Developer Program ($99/年): https://developer.apple.com/programs/
 - [ ] 在 App Store Connect 创建 App 记录: https://appstoreconnect.apple.com
-  - Bundle ID: `com.focusflow.app`
+  - Bundle ID: `com.zhulei.focusflow`
   - SKU: `focusflow`
   - 平台: macOS
 
@@ -15,7 +15,7 @@
 - [ ] 在 Apple Developer → Certificates 创建 "Mac App Distribution" 证书
 - [ ] 创建 App Store 分发配置文件 (Provisioning Profile):
   - 类型: Mac App Store
-  - Bundle ID: `com.focusflow.app`
+  - Bundle ID: `com.zhulei.focusflow`
   - 名称: `FocusFlow App Store`
 
 ### 3. App Store Connect API 密钥

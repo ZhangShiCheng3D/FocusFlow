@@ -256,7 +256,7 @@ enum UserFocusStatus {
 
 final class KeychainManager {
     static let shared = KeychainManager()
-    private let serviceName = "com.focusflow.app"
+    private let serviceName = "com.zhulei.focusflow"
 
     /// Session-scoped fallback for environments where the Keychain is
     /// unavailable (simulator, sandbox edge cases). Deliberately in-memory:
