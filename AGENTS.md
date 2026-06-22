@@ -135,4 +135,4 @@ Defined as `SoundCatalog.allSounds` (static `[Sound]`, 21 sounds). Free tier: wh
 
 ## Keychain Token Storage
 
-`KeychainManager` uses `SecItemAdd`/`SecItemCopyMatching`/`SecItemDelete` with `kSecAttrAccessibleAfterFirstUnlock`. Falls back to UserDefaults if Keychain fails (simulator, sandbox issues). On successful Keychain read/write, stale UserDefaults fallback data is automatically purged.
+`KeychainManager` uses `SecItemAdd`/`SecItemCopyMatching`/`SecItemDelete` with `kSecAttrAccessibleAfterFirstUnlock`. If the Keychain is unavailable (simulator, sandbox edge cases) it falls back to a **session-scoped in-memory dict** (lock-guarded) — never plaintext on disk. Consequence: in that degraded state tokens don't survive an app restart and the user re-authorizes. On a successful Keychain read/write, any stale in-memory copy is dropped.

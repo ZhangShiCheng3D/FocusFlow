@@ -153,7 +153,7 @@ Pro sound files (.aac, 24 total) are served from **GitHub Releases** — zero co
 
 **Download URL** (`Models.swift`):
 ```
-https://github.com/ZhangShiCheng3D/FocusFlow/releases/download/sounds-v2/{fileName}
+https://github.com/ZhangShiCheng3D/FocusFlow/releases/download/sounds-v3/{fileName}
 ```
 
 **CI upload**: `.github/workflows/upload-sounds.yml` triggers on `sounds-v*` tags or manual dispatch. Uses `scripts/ci_generate_sounds.sh` (ffmpeg synthesis on macOS runner) → uploads all 24 .aac files as release assets. The release `tag_name` follows the pushed tag, so each `sounds-v*` tag publishes its own release.
@@ -174,4 +174,4 @@ Tests in `FocusFlowTests.swift` cover: Sound catalog integrity (count, uniquenes
 
 ## Keychain Token Storage
 
-`KeychainManager` uses `SecItemAdd`/`SecItemCopyMatching`/`SecItemDelete` with `kSecAttrAccessibleAfterFirstUnlock`. Falls back to UserDefaults if Keychain fails (simulator, sandbox issues). On successful Keychain read/write, stale UserDefaults fallback data is automatically purged.
+`KeychainManager` uses `SecItemAdd`/`SecItemCopyMatching`/`SecItemDelete` with `kSecAttrAccessibleAfterFirstUnlock`. If the Keychain is unavailable (simulator, sandbox edge cases) it falls back to a **session-scoped in-memory dict** (lock-guarded) — never plaintext on disk. Consequence: in that degraded state tokens don't survive an app restart and the user re-authorizes. On a successful Keychain read/write, any stale in-memory copy is dropped.
