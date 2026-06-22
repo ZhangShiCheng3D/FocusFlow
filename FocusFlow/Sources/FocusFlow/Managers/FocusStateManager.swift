@@ -384,24 +384,40 @@ final class FocusStateManager: ObservableObject {
         completed: Bool
     ) {
         let endTime = Date()
-        let elapsedSeconds = max(0, Int(endTime.timeIntervalSince(startTime).rounded()))
-        let recordedSeconds = completed
-            ? plannedDurationSeconds
-            : min(elapsedSeconds, plannedDurationSeconds)
-        let recordedMinutes = recordedSeconds > 0 ? max(1, (recordedSeconds + 59) / 60) : 0
+        let elapsedSeconds = Int(endTime.timeIntervalSince(startTime).rounded())
+        let recorded = Self.recordedDuration(
+            elapsedSeconds: elapsedSeconds,
+            plannedSeconds: plannedDurationSeconds,
+            completed: completed
+        )
 
         let session = FocusSession(
             startTime: startTime,
             endTime: endTime,
-            durationMinutes: recordedMinutes,
-            durationSeconds: recordedSeconds,
+            durationMinutes: recorded.minutes,
+            durationSeconds: recorded.seconds,
             soundsUsed: soundsUsed,
             wasCompleted: completed
         )
         StatisticsManager.shared.recordSession(session)
     }
 
-    private func normalizedSoundIds(_ soundIds: [String]) -> [String] {
+    /// Computes the recorded duration for a session. A completed session records
+    /// its full planned length; an interrupted one records elapsed wall-clock time
+    /// capped at the planned length. Any non-zero duration rounds up to ≥ 1 minute.
+    static func recordedDuration(
+        elapsedSeconds: Int,
+        plannedSeconds: Int,
+        completed: Bool
+    ) -> (seconds: Int, minutes: Int) {
+        let seconds = completed
+            ? plannedSeconds
+            : min(max(0, elapsedSeconds), plannedSeconds)
+        let minutes = seconds > 0 ? max(1, (seconds + 59) / 60) : 0
+        return (seconds, minutes)
+    }
+
+    func normalizedSoundIds(_ soundIds: [String]) -> [String] {
         var result: [String] = []
         for soundId in soundIds where !result.contains(soundId) {
             guard SoundCatalog.allSounds.contains(where: { $0.id == soundId }) else { continue }

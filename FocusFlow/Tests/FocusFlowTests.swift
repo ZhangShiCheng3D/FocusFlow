@@ -211,6 +211,57 @@ final class FocusFlowTests: XCTestCase {
         XCTAssertEqual(HotKeyCombo(string: "⌃A")?.keyCode, UInt32(kVK_ANSI_A))
     }
 
+    // MARK: - Session Duration Recording
+
+    func testRecordedDurationCompletedUsesPlannedLength() {
+        // A completed session records its full planned length, ignoring elapsed time.
+        let r = FocusStateManager.recordedDuration(elapsedSeconds: 10, plannedSeconds: 1500, completed: true)
+        XCTAssertEqual(r.seconds, 1500)
+        XCTAssertEqual(r.minutes, 25)
+    }
+
+    func testRecordedDurationInterruptedCapsAtPlanned() {
+        // Elapsed beyond the plan is capped at the planned length.
+        let r = FocusStateManager.recordedDuration(elapsedSeconds: 9999, plannedSeconds: 1500, completed: false)
+        XCTAssertEqual(r.seconds, 1500)
+        XCTAssertEqual(r.minutes, 25)
+    }
+
+    func testRecordedDurationInterruptedUsesElapsedAndRoundsUp() {
+        // 61s elapsed → rounds up to 2 minutes.
+        let r = FocusStateManager.recordedDuration(elapsedSeconds: 61, plannedSeconds: 1500, completed: false)
+        XCTAssertEqual(r.seconds, 61)
+        XCTAssertEqual(r.minutes, 2)
+    }
+
+    func testRecordedDurationFloorsNegativeAndZero() {
+        let negative = FocusStateManager.recordedDuration(elapsedSeconds: -5, plannedSeconds: 1500, completed: false)
+        XCTAssertEqual(negative.seconds, 0)
+        XCTAssertEqual(negative.minutes, 0)
+
+        // Any non-zero second count rounds up to at least 1 minute.
+        let oneSecond = FocusStateManager.recordedDuration(elapsedSeconds: 1, plannedSeconds: 1500, completed: false)
+        XCTAssertEqual(oneSecond.minutes, 1)
+    }
+
+    // MARK: - Sound ID Normalization
+
+    @MainActor
+    func testNormalizedSoundIdsDedupesFiltersAndCapsAtThree() {
+        let manager = FocusStateManager.shared
+        // Duplicates collapse, invalid ids drop, order is preserved.
+        XCTAssertEqual(
+            manager.normalizedSoundIds(["rain_light", "rain_light", "not_a_real_sound", "cafe"]),
+            ["rain_light", "cafe"]
+        )
+        // Caps at 3 even with more valid ids.
+        XCTAssertEqual(
+            manager.normalizedSoundIds(["white_noise", "rain_light", "cafe", "thunder"]),
+            ["white_noise", "rain_light", "cafe"]
+        )
+        XCTAssertTrue(manager.normalizedSoundIds([]).isEmpty)
+    }
+
     // MARK: - Session Timing (Robust)
 
     func testFocusSessionActualDuration_Robust() {
