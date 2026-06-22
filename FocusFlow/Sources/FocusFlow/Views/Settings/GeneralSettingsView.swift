@@ -125,13 +125,13 @@ struct GeneralSettingsView: View {
                     if prefs.useGlobalHotkey {
                         HStack {
                             Text("快捷键组合:")
-                            TextField("点击录制快捷键", text: $prefs.hotkeyCombo)
-                                .frame(width: 120)
+                            HotkeyRecorderField(combo: $prefs.hotkeyCombo)
+                                .frame(width: 140, height: 24)
                             Button("清除") { prefs.hotkeyCombo = "" }
                         }
                         .padding(.leading, 20)
 
-                        Text("若与其他 App 冲突，请更换组合键")
+                        Text("需含至少一个修饰键（⌘⌥⌃⇧）加一个字母或数字；若与其他 App 冲突，请更换组合键")
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.leading, 20)

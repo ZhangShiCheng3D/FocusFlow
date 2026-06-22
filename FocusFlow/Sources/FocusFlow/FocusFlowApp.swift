@@ -29,8 +29,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Setup menu bar
         MenuBarController.shared.setup()
 
-        // Show onboarding if first launch
+        // Register the global hotkey if the user enabled one
         let prefs = PreferencesManager.shared
+        prefs.applyHotkey()
+
+        // Show onboarding if first launch
         if !prefs.hasCompletedOnboarding {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.showOnboarding()
