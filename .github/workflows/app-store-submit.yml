@@ -61,6 +61,9 @@ jobs:
           mkdir -p "$PROFILE_PATH"
           echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o "$PROFILE_PATH/FocusFlow_AppStore.mobileprovision"
 
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
       - name: Archive and export
         env:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}

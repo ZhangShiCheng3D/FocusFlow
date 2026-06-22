@@ -24,6 +24,10 @@
   - 记下 `Key ID` 和 `Issuer ID`
   - 下载 `.p8` 密钥文件
 
+### 3b. XcodeGen（生成 App 工程）
+- [ ] 安装 XcodeGen：`brew install xcodegen`
+- 项目是 SwiftPM 包，`scripts/submit_app_store.sh` 会先 `xcodegen generate` 根据 `project.yml` 生成 `FocusFlow.xcodeproj`（App 目标）再归档。生成的工程是构建产物（已 gitignore）。
+
 ### 4. 特殊权限说明
 FocusFlow 使用了以下需要额外说明的权限，在 App Store Connect 的 App Review 信息中需要提供详细解释：
 

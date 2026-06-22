@@ -32,6 +32,32 @@ jobs:
       - name: Run tests
         run: swift test --package-path FocusFlow
 
+  xcode-app-build:
+    name: Verify Xcode app target builds
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build app target (unsigned)
+        run: |
+          xcodebuild build \
+            -project FocusFlow.xcodeproj \
+            -scheme FocusFlow \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO | xcpretty || \
+          xcodebuild build \
+            -project FocusFlow.xcodeproj \
+            -scheme FocusFlow \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO
+
   app-artifact:
     name: Package macOS app
     runs-on: macos-15

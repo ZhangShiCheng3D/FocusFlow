@@ -59,16 +59,22 @@ echo "  Bundle ID:    com.focusflow.app"
 echo "  Upload:       $UPLOAD"
 echo ""
 
-# ---- Step 1: Resolve dependencies ----
-echo -e "${YELLOW}[1/4]${NC} Resolving Swift package dependencies..."
-cd "$PACKAGE_DIR"
-xcodebuild -resolvePackageDependencies -scmProvider system 2>&1 || true
+# ---- Step 1: Generate the Xcode project from project.yml ----
+echo -e "${YELLOW}[1/4]${NC} Generating Xcode project (XcodeGen)..."
+if ! command -v xcodegen >/dev/null 2>&1; then
+    echo -e "${RED}ERROR: xcodegen not installed. Run: brew install xcodegen${NC}"
+    exit 1
+fi
+cd "$ROOT_DIR"
+xcodegen generate
+XCODEPROJ="$ROOT_DIR/FocusFlow.xcodeproj"
 
 # ---- Step 2: Archive ----
 echo -e "${YELLOW}[2/4]${NC} Creating xcarchive..."
 rm -rf "$ARCHIVE_PATH"
 
 xcodebuild archive \
+    -project "$XCODEPROJ" \
     -scheme FocusFlow \
     -destination 'generic/platform=macOS' \
     -archivePath "$ARCHIVE_PATH" \
@@ -78,6 +84,7 @@ xcodebuild archive \
     PROVISIONING_PROFILE_SPECIFIER="FocusFlow App Store" \
     OTHER_CODE_SIGN_FLAGS="--timestamp" \
     | xcpretty || xcodebuild archive \
+        -project "$XCODEPROJ" \
         -scheme FocusFlow \
         -destination 'generic/platform=macOS' \
         -archivePath "$ARCHIVE_PATH" \

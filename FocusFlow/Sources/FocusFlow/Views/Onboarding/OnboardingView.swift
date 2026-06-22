@@ -107,7 +107,7 @@ struct OnboardingView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
 
-            Text("一键构建深度工作环境：\n环境音 + 专注模式 + IM 状态同步 + 应用阻断")
+            Text("一键构建深度工作环境：\n环境音 + 专注模式 + IM 状态同步 + 番茄计时")
                 .multilineTextAlignment(.center)
                 .font(.body)
                 .foregroundColor(.secondary)

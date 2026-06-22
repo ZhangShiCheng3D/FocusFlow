@@ -12,6 +12,9 @@ DerivedData/
 *.xcodeproj/xcuserdata/
 *.xcuserstate
 
+# XcodeGen-generated project (regenerate with `xcodegen generate`)
+FocusFlow.xcodeproj/
+
 # Local/editor state
 .vscode/
 .idea/

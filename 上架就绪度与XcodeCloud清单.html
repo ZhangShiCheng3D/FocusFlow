@@ -1,0 +1,111 @@
+<title>FocusFlow 上架就绪度与 Xcode Cloud 落地清单</title>
+<style>
+  :root{--bg:#0e1216;--card:#171f26;--line:#28333d;--ink:#e9eff4;--mut:#92a2ad;--ok:#3fd08a;--warn:#ffb13c;--bad:#ff5c5c;--info:#5cc8ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 -apple-system,"PingFang SC","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:48px 24px 90px}
+  h1{font-size:29px;margin:0 0 4px;letter-spacing:-.5px}
+  .sub{color:var(--mut);margin:0 0 26px}
+  .alert{background:linear-gradient(135deg,#2a1416,#0e1216);border:1px solid #4a2126;border-radius:14px;padding:18px 22px;margin:0 0 28px}
+  .alert b{color:var(--bad)}
+  h2.sec{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin:36px 0 14px;border-bottom:1px solid var(--line);padding-bottom:8px}
+  .tablewrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap}
+  .ok{background:rgba(63,208,138,.15);color:var(--ok)}
+  .warn{background:rgba(255,177,60,.15);color:var(--warn)}
+  .bad{background:rgba(255,92,92,.15);color:var(--bad)}
+  .who{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:5px;margin-left:6px}
+  .me{background:rgba(92,200,255,.16);color:var(--info)}
+  .you{background:rgba(255,177,60,.16);color:var(--warn)}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:#0b0f13;border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+  ol{padding-left:20px}li{margin:8px 0}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 12px}
+  .step h3{margin:0 0 6px;font-size:15px}
+  .mut{color:var(--mut)}
+  .legend{font-size:12.5px;color:var(--mut);margin:6px 0 18px}
+</style>
+
+<div class="wrap">
+  <h1>FocusFlow 上架就绪度 & Xcode Cloud 落地清单</h1>
+  <p class="sub">现状评估 + 谁做什么 · 2026-06-22</p>
+
+  <div class="alert">
+    <b>结论：现在还不能直接走 Xcode Cloud / 上架。</b> 项目是纯 SwiftPM 可执行包，缺少 Mac App Store 必需的 <b>Xcode App 目标</b>；且 Xcode Cloud 配置与提交审核需 Mac + Apple 开发者账号 + 人工，无法在当前 Windows 环境由 AI 代为完成。下面是把它变为可上架所需的完整步骤，并标注 <span class="who me">AI可代做</span> 与 <span class="who you">需你在 Mac/账号侧做</span>。
+  </div>
+
+  <h2 class="sec">就绪度分析</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>项</th><th>状态</th><th>说明</th></tr>
+    <tr><td>Swift 代码 / 测试</td><td><span class="pill ok">就绪</span></td><td>构建+20 单测全绿（CI 已验证）。逻辑层可上架质量。</td></tr>
+    <tr><td>音效资产 (sounds-v3)</td><td><span class="pill ok">就绪</span></td><td>24 个已发布，clock_tick/音乐音色已修。</td></tr>
+    <tr><td><b>Xcode App 目标</b></td><td><span class="pill bad">缺失·阻断</span></td><td>仅 <code>.executableTarget</code>。App Store 需 <code>type: application</code> 的 Xcode 目标（bundle/签名/嵌入 Info.plist+entitlements）。</td></tr>
+    <tr><td>现有上架管线</td><td><span class="pill bad">未验证·疑似失效</span></td><td><code>submit_app_store.sh</code> 的 <code>xcodebuild archive</code> 基于 SPM 自动 scheme，产不出可上架 .app。从未在真账号跑通。</td></tr>
+    <tr><td>Apple Developer 账号</td><td><span class="pill warn">需你</span></td><td>$99/年；App Store Connect 创建 App 记录 (bundle <code>com.focusflow.app</code>)。</td></tr>
+    <tr><td>签名证书 / 描述文件</td><td><span class="pill warn">需你</span></td><td>Apple Distribution 证书 + "FocusFlow App Store" 描述文件（GitHub secrets 名已规划好，但值未填）。</td></tr>
+    <tr><td>FamilyControls 授权</td><td><span class="pill warn">需申请</span></td><td><code>com.apple.developer.family-controls</code> 是受限授权，需单独向苹果申请；当前 entitlements 未含它（应用阻断仍是 stub）。建议首版**移除该功能宣称**以免拒审。</td></tr>
+    <tr><td>免费音效"内置离线"</td><td><span class="pill warn">名不符实</span></td><td>仓库未含任何 .aac，<code>bundleURL</code> 恒为 nil。免费档 3 音其实也走网络下载（sounds-v3 有），并非真正离线内置。首版要么把 3 个 .aac 真正打进 bundle，要么调整文案。</td></tr>
+    <tr><td>隐私政策 / 技术支持 URL</td><td><span class="pill warn">需你</span></td><td>App Store 必填。</td></tr>
+    <tr><td>截图 / 描述 / 分级</td><td><span class="pill warn">需你</span></td><td>至少 1 张 macOS 截图；中英描述；4+ 分级。</td></tr>
+  </table>
+  </div>
+  <p class="legend">阻断项必须先解决，App 目标缺失是第一优先。</p>
+
+  <h2 class="sec">Xcode Cloud vs 现有 GitHub Actions</h2>
+  <p class="mut">两条路<b>都</b>要先补 App 目标。区别：</p>
+  <ul class="mut">
+    <li><b>Xcode Cloud</b>：与 App Store Connect 深度集成、TestFlight/自动分发顺滑；但 workflow 只能在 Xcode(macOS)/ASC 网页里配，仓库侧只能放 <code>ci_scripts/</code> 钩子。需 Mac。</li>
+    <li><b>GitHub Actions</b>（你已有 <code>app-store-submit.yml</code> + secrets 规划）：跨平台可维护、AI 可改；补好 App 目标后我能在这里把它修到真正可用，且 macOS runner 已验证可跑。</li>
+  </ul>
+  <p class="mut"><b>建议</b>：若你更想要 AI 可持续维护的自动化，<b>修复 GitHub Actions 路线</b>性价比更高（我能改+CI 验证）；若你明确要 Xcode Cloud 的 TestFlight 体验，则按下面 Xcode Cloud 步骤、由你在 Mac 上配置。</p>
+
+  <h2 class="sec">落地步骤</h2>
+
+  <div class="step"><h3>Phase 0 · 前置（账号/资产）<span class="who you">需你</span></h3>
+    <ol>
+      <li>注册 Apple Developer Program；ASC 创建 App 记录（bundle <code>com.focusflow.app</code>，平台 macOS）。</li>
+      <li>生成 Apple Distribution 证书 + "FocusFlow App Store" 描述文件；建 App Store Connect API Key (.p8)。</li>
+      <li>决定首版是否保留 FamilyControls/IM 同步（受限授权/第三方依赖，建议首版精简以降低拒审）。</li>
+    </ol>
+  </div>
+
+  <div class="step"><h3>Phase 1 · 加 Xcode App 目标（解除头号阻断）<span class="who me">AI可代做(草案)</span> <span class="who you">需你在 Mac 验证</span></h3>
+    <ol>
+      <li>我可以生成一份 <b>XcodeGen <code>project.yml</code></b>（把现有 <code>Sources/FocusFlow</code> + Info.plist + entitlements 映射成 <code>type: application</code> 的 macOS 目标 + 单测目标），连同 Xcode Cloud 的 <code>ci_scripts/</code> 一并提交。</li>
+      <li>你在 Mac 上 <code>brew install xcodegen &amp;&amp; xcodegen generate</code> → 得到 <code>FocusFlow.xcodeproj</code>，在 Xcode 里跑通 Run/Archive，修签名。</li>
+      <li>把免费 3 音的 .aac 真正放进 <code>Resources/</code>（或确认走网络）。</li>
+      <li class="mut">⚠️ 我无法在 Windows 上运行 xcodegen/xcodebuild，<code>project.yml</code> 只能算<b>草案</b>，必须由你在 Mac 上迭代验证。</li>
+    </ol>
+  </div>
+
+  <div class="step"><h3>Phase 2 · 测试与构建管线 <span class="who you">需你(Xcode Cloud)</span> / <span class="who me">AI(GH Actions)</span></h3>
+    <ol>
+      <li><b>Xcode Cloud</b>：Xcode → 选中工程 → Product → Xcode Cloud → Create Workflow；选 App、分支、Archive-macOS action、TestFlight/App Store 分发。仓库放 <code>ci_scripts/ci_post_clone.sh</code>（如需 xcodegen generate）。</li>
+      <li><b>或 GitHub Actions</b>：补好 App 目标后，我把 <code>app-store-submit.yml</code>/<code>submit_app_store.sh</code> 改为对 <code>.xcodeproj</code> archive+export，并由 macOS CI 验证。</li>
+    </ol>
+  </div>
+
+  <div class="step"><h3>Phase 3 · 商店素材 <span class="who you">需你</span></h3>
+    <ol>
+      <li>隐私政策 URL、技术支持 URL；中英描述、关键词；3–5 张截图；分级 4+。</li>
+    </ol>
+  </div>
+
+  <div class="step"><h3>Phase 4 · 提交审核 <span class="who you">需你</span></h3>
+    <ol>
+      <li>Archive → 上传（Xcode Organizer / altool / Xcode Cloud 自动）→ ASC 填审核信息（重点解释各权限用途）→ 提交 → 等 1–3 天。</li>
+    </ol>
+  </div>
+
+  <h2 class="sec">我现在能立刻代做的</h2>
+  <ul>
+    <li><span class="who me">AI</span> 生成 <b>XcodeGen <code>project.yml</code></b> 草案（macOS app 目标 + 测试目标，映射现有源码/Info.plist/entitlements），放进仓库分支。</li>
+    <li><span class="who me">AI</span> 写 Xcode Cloud <code>ci_scripts/</code>（post-clone 装 xcodegen 并 generate）。</li>
+    <li><span class="who me">AI</span> 把 <code>app-store-submit.yml</code> + <code>submit_app_store.sh</code> 改造为面向 <code>.xcodeproj</code>（如选 GitHub Actions 路线）。</li>
+    <li><span class="who me">AI</span> 首版精简：移除/隐藏 FamilyControls 宣称、修免费音效"离线"文案，降低拒审与维护风险。</li>
+  </ul>
+  <p class="mut">这些都是仓库侧准备，能把你在 Mac 上的工作量降到最低；但 <b>Xcode Cloud workflow 创建、签名、商店素材、提交审核</b> 必须由你在 Mac + Apple 账号侧完成——AI 无法越过这道环境与账号边界。</p>
+</div>
