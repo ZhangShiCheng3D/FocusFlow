@@ -258,12 +258,32 @@ final class KeychainManager {
     static let shared = KeychainManager()
     private let serviceName = "com.focusflow.app"
 
+    /// Session-scoped fallback for environments where the Keychain is
+    /// unavailable (simulator, sandbox edge cases). Deliberately in-memory:
+    /// OAuth tokens are never written to disk in plaintext. If the Keychain
+    /// is down, tokens simply don't survive an app restart and the user
+    /// re-authorizes — a safer tradeoff than a readable plist.
+    private var memoryFallback: [String: String] = [:]
+    private let fallbackLock = NSLock()
+
     private func baseQuery(for key: String) -> [CFString: Any] {
         return [
             kSecClass: kSecClassGenericPassword,
             kSecAttrService: serviceName,
             kSecAttrAccount: key
         ]
+    }
+
+    private func setFallback(_ value: String?, for key: String) {
+        fallbackLock.lock()
+        defer { fallbackLock.unlock() }
+        memoryFallback[key] = value
+    }
+
+    private func getFallback(for key: String) -> String? {
+        fallbackLock.lock()
+        defer { fallbackLock.unlock() }
+        return memoryFallback[key]
     }
 
     func save(key: String, value: String) {
@@ -279,12 +299,12 @@ final class KeychainManager {
 
         let status = SecItemAdd(query as CFDictionary, nil)
         if status != errSecSuccess {
-            // Fallback to UserDefaults for debug/simulator builds where Keychain may fail
-            print("[Keychain] SecItemAdd failed (\(status)) — falling back to UserDefaults for key '\(key)'")
-            UserDefaults.standard.set(value, forKey: "focusflow_keychain_\(key)")
+            // Keychain unavailable — keep the token in memory only (not on disk).
+            print("[Keychain] SecItemAdd failed (\(status)) — using in-memory fallback for key '\(key)'")
+            setFallback(value, for: key)
         } else {
-            // Keychain write succeeded — remove any stale UserDefaults fallback
-            UserDefaults.standard.removeObject(forKey: "focusflow_keychain_\(key)")
+            // Keychain write succeeded — drop any stale in-memory copy.
+            setFallback(nil, for: key)
         }
     }
 
@@ -299,21 +319,17 @@ final class KeychainManager {
         guard status == errSecSuccess,
               let data = item as? Data,
               let string = String(data: data, encoding: .utf8) else {
-            // Fallback to UserDefaults
-            return UserDefaults.standard.string(forKey: "focusflow_keychain_\(key)")
+            // Keychain miss — fall back to the in-memory copy, if any.
+            return getFallback(for: key)
         }
 
-        // Keychain succeeded — clean up any stale UserDefaults fallback
-        let udKey = "focusflow_keychain_\(key)"
-        if UserDefaults.standard.string(forKey: udKey) != nil {
-            UserDefaults.standard.removeObject(forKey: udKey)
-        }
-
+        // Keychain succeeded — drop any stale in-memory copy.
+        setFallback(nil, for: key)
         return string
     }
 
     func delete(key: String) {
         SecItemDelete(baseQuery(for: key) as CFDictionary)
-        UserDefaults.standard.removeObject(forKey: "focusflow_keychain_\(key)")
+        setFallback(nil, for: key)
     }
 }
