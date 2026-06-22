@@ -58,9 +58,14 @@ gen "brown_noise.aac"   120 "anoisesrc=d=120:c=brown:r=44100:a=0.25"
 gen "fan.aac"           120 "anoisesrc=d=120:c=brown:r=44100:a=0.18, lowpass=f=200, highpass=f=30, volume=1.0"
 
 echo "━━━ 5/6 Music ━━━"
-gen "wind_chime.aac"    120 "sine=f=2400:r=44100:d=120, volume=0.04"
-gen "piano.aac"         120 "sine=f=440:r=44100:d=120, volume=0.08"
-gen "choir.aac"         120 "sine=f=330:r=44100:d=120, volume=0.06"
+# These used to be a single constant sine tone each (a drone, not music).
+# Now additive-synth patches: chords with harmonics + envelope/vibrato.
+# wind_chime: 3 pentatonic bells (C5/E5/G5) struck every 2/3/5s with decay.
+gen "wind_chime.aac"    120 "aevalsrc=0.6*sin(2*PI*523.25*t)*exp(-4*mod(t\,2)):d=120:s=44100[a];aevalsrc=0.6*sin(2*PI*659.25*t)*exp(-4*mod(t\,3)):d=120:s=44100[b];aevalsrc=0.6*sin(2*PI*783.99*t)*exp(-4*mod(t\,5)):d=120:s=44100[c];[a][b][c]amix=inputs=3:normalize=0,volume=0.4"
+# piano: C-E-G chord, each note = fundamental + harmonics, with slow tremolo.
+gen "piano.aac"         120 "aevalsrc=(0.5*sin(2*PI*261.63*t)+0.25*sin(2*PI*523.25*t)+0.12*sin(2*PI*784.0*t))*(0.85+0.15*sin(2*PI*0.2*t)):d=120:s=44100[a];aevalsrc=(0.5*sin(2*PI*329.63*t)+0.25*sin(2*PI*659.25*t)+0.12*sin(2*PI*988.0*t))*(0.85+0.15*sin(2*PI*0.2*t)):d=120:s=44100[b];aevalsrc=(0.5*sin(2*PI*392.0*t)+0.25*sin(2*PI*784.0*t))*(0.85+0.15*sin(2*PI*0.2*t)):d=120:s=44100[c];[a][b][c]amix=inputs=3:normalize=0,volume=0.16"
+# choir: A-C#-E vocal-pad chord with per-voice vibrato (slight detune in rate).
+gen "choir.aac"         120 "aevalsrc=0.5*sin(2*PI*220.0*(1+0.006*sin(2*PI*5*t))*t):d=120:s=44100[a];aevalsrc=0.45*sin(2*PI*277.18*(1+0.006*sin(2*PI*5.3*t))*t):d=120:s=44100[b];aevalsrc=0.45*sin(2*PI*329.63*(1+0.006*sin(2*PI*4.7*t))*t):d=120:s=44100[c];[a][b][c]amix=inputs=3:normalize=0,volume=0.22"
 
 echo "━━━ 6/6 Special ━━━"
 gen "train.aac"         120 "anoisesrc=d=120:c=brown:r=44100:a=0.28, lowpass=f=400, volume=0.5"

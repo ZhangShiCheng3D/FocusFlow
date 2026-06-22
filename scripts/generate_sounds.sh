@@ -80,8 +80,8 @@ gen "train.aac" 120 "anoisesrc=d=120:c=brown:r=44100:a=0.30, lowpass=f=500, volu
 # -t 拉不长，成品只有约 0.05s，循环后变蜂鸣而非滴答。
 gen "clock_tick.aac" 60  "aevalsrc=0.25*sin(2*PI*1000*t)*lt(mod(t\,1)\,0.03):d=120:s=44100"
 
-# Wind Chime: 随机高频铃音
-gen "wind_chime.aac" 120 "sine=f=2000:r=44100:d=120, volume=0.08"
+# Wind Chime: 3 个五声音阶钟声 (C5/E5/G5)，每 2/3/5 秒敲击一次并指数衰减
+gen "wind_chime.aac" 120 "aevalsrc=0.6*sin(2*PI*523.25*t)*exp(-4*mod(t\,2)):d=120:s=44100[a];aevalsrc=0.6*sin(2*PI*659.25*t)*exp(-4*mod(t\,3)):d=120:s=44100[b];aevalsrc=0.6*sin(2*PI*783.99*t)*exp(-4*mod(t\,5)):d=120:s=44100[c];[a][b][c]amix=inputs=3:normalize=0,volume=0.4"
 
 echo ""
 echo "━━━ 4/4 需要手动下载的音效 ━━━"
